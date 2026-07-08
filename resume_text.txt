@@ -1,0 +1,41 @@
+PRIYANSHU GARG
+SENIOR SOFTWARE DEVELOPER | FULL-STACK DEVELOPER
+70474-90032   |   impriyanshu.garg@gmail.com   |   linkedin.com/in/priyanshu-garg-software-engineer   |   github.com/Mr-Priyanshu   |   Jabalpur, MP
+SUMMARY
+Full-Stack Developer with 3+ years of experience building and automating web platforms across MERN, WordPress, and Shopify. Currently building a unified social-media ad management platform integrating Meta, Google Ads, LinkedIn, YouTube, and WhatsApp Business APIs. Proven track record integrating third-party APIs to cut manual workload by 50% and resolving 30+ critical production bugs to improve platform stability. Strong foundation in MySQL/PostgreSQL database design and REST/GraphQL API development, with a focus on delivering measurable efficiency gains for business operations.
+WORK EXPERIENCE
+Senior Software Developer  |  White Force Infosystem, Jabalpur	March 2026 – Present
+Developing Whiteforce Ad Manager, a MERN-based platform that centralizes ad campaign management across Meta (Facebook/Instagram), Google Ads, LinkedIn, YouTube, and WhatsApp into a single dashboard.
+Integrated Meta Ads API to create, launch, and monitor ad campaigns, track campaign performance and lead data, and route leads to the appropriate sales team members.
+Built Google Ads and YouTube Ads integrations to pull campaign performance, lead, and ad revenue data directly into the platform for real-time reporting.
+Developed LinkedIn integration enabling ad campaign creation, post management, and city-wise campaign targeting and performance tracking.
+Engineered WhatsApp Business API integration to manage multiple WhatsApp accounts, run WhatsApp ad campaigns, and support bulk SMS messaging with reusable, editable message templates.
+Full-Stack Developer  |  DOAGuru InfoSystems, Jabalpur	2023 – March 2026
+Built scalable referral systems and eCommerce platforms, and developed internal automation tools that streamlined recurring business workflows.
+Diagnosed and resolved 30+ critical bugs across Dental Guru Software (Pro & Lite), improving application stability and overall performance.
+Integrated Meta API to automate lead data processing end-to-end, cutting manual data-entry effort by 50% and accelerating lead response time.
+Recognized by leadership for debugging and optimization expertise, consistently ensuring reliable data flow across automated workflows.
+Software Developer  |  Engineering Innovation, Jabalpur	2022 – 2023
+Led the SRS team, owning project documentation and serving as primary point of contact for client communication.
+Transitioned into frontend development and redesigned the UI for Gosavvy Management, a loan servicing platform, improving usability.
+Improved project documentation accuracy by 40% and streamlined client feedback cycles, reducing revision turnaround time.
+PROJECTS
+CLMS (Meta API Integration): Built an automated Meta Ads lead-fetching system using React and Node.js, eliminating manual lead exports for clients.
+Fashion Shopping Website: Designed a fully responsive eCommerce UI with React and Tailwind CSS, optimized for mobile-first browsing.
+Affiliate Marketing Application: Developed a scalable affiliate-tracking system to support business promotion and partner payouts.
+Static Portfolio Website & Binary Converter Tool: Built JavaScript-based utility tools for personal and client use.
+TECHNICAL SKILLS
+Web Development: WordPress, Shopify, WordPress Plugin Development, Tailwind CSS, Bootstrap, MUI, GSAP
+Full Stack (MERN): MongoDB, Express.js, React.js, Node.js
+Databases: MySQL, PostgreSQL
+Version Control: Git, GitHub
+DevOps & Deployment: Docker, Linux, Cloud Hosting, cPanel
+APIs & Automation: REST, GraphQL, Meta API, n8n Workflow Automation
+EDUCATION
+B.Tech in Computer Science Engineering — Gyan Ganga Institute of Technology & Science, Jabalpur (RGPV), 2023 — CGPA: 8.36
+Diploma in Computer Science Engineering — Govt. Polytechnic College Dindori (RGPV), 2020 — CGPA: 7.21
+CERTIFICATIONS & COURSES
+Project Management | Google Ads | Web Development | Cyber Security | AWS EC2 VM
+Core Java | JavaScript | Cisco Data Fundamentals of Communication
+LANGUAGES
+Hindi, English

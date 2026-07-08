@@ -1,0 +1,342 @@
+/* -------------------------------------------------------------
+ * Priyanshu Garg Developer Portfolio - Custom Stylesheet v2.0
+ * ------------------------------------------------------------- */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800&display=swap');
+
+/* Design Tokens & CSS Variables */
+:root {
+  /* Color Palette */
+  --bg-void-black: #03050B;
+  --bg-card-dark: #070A13;
+  --color-cyber-cyan: #00F0FF;
+  --color-electric-blue: #0066FF;
+  --color-hyper-purple: #7C3AED;
+  
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-dim: #475569;
+
+  /* Font Pairings */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing Scale (8px Grid) */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+  --space-5xl: 128px;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
+
+/* Base Styles & Modern Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto; /* Handled by Lenis smooth scroll */
+  font-size: 16px;
+  background-color: var(--bg-void-black);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--bg-void-black);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-void-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--bg-void-black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cyber-cyan);
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* Glassmorphism & Neon Glow Utilities */
+.glass-panel {
+  background: rgba(7, 10, 19, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel:hover {
+  border-color: rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.08);
+}
+
+.neon-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3), 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+.neon-glow-purple {
+  text-shadow: 0 0 10px rgba(124, 58, 237, 0.3), 0 0 20px rgba(124, 58, 237, 0.1);
+}
+
+/* Focus Ring Outline AA Standards */
+:focus-visible {
+  outline: 2px solid var(--color-cyber-cyan);
+  outline-offset: 4px;
+}
+
+/* Custom UI Elements */
+.magnetic {
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  display: inline-block;
+}
+
+/* Preloader Curtain styling */
+.loader-curtain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+  display: flex;
+  pointer-events: none;
+}
+
+.loader-bar {
+  height: 100%;
+  flex: 1;
+  background-color: var(--bg-card-dark);
+}
+
+/* ThreeJS Canvas positioning */
+#three-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Helper for animations */
+.opacity-0-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Cybernetic Grid & HUD Elements */
+.cyber-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+  z-index: 1;
+}
+
+.status-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #00F0FF;
+  box-shadow: 0 0 10px #00F0FF, 0 0 20px #00F0FF;
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(0.95); opacity: 0.6; box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); }
+  50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 8px 4px rgba(0, 240, 255, 0.2); }
+  100% { transform: scale(0.95); opacity: 0.6; box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
+}
+
+/* Glassmorphic Cyber Terminal */
+.terminal-window {
+  background: rgba(5, 7, 15, 0.8);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+.terminal-window:hover {
+  border-color: rgba(0, 240, 255, 0.25);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.terminal-header {
+  background: rgba(10, 14, 26, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.terminal-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.terminal-btn {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.terminal-btn.close { background: #FF5F56; }
+.terminal-btn.minimize { background: #FFBD2E; }
+.terminal-btn.maximize { background: #27C93F; }
+
+.terminal-tabs {
+  display: flex;
+  gap: 2px;
+  margin-left: 16px;
+}
+
+.terminal-tab {
+  font-size: 11px;
+  color: #64748B;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+.terminal-tab:hover {
+  color: #94A3B8;
+}
+
+.terminal-tab.active {
+  color: #00F0FF;
+  border-bottom-color: #00F0FF;
+}
+
+.terminal-body {
+  padding: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  height: 310px;
+  overflow-y: auto;
+  color: #E2E8F0;
+  background-image: radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+}
+
+.terminal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.terminal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+}
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.3);
+}
+
+.term-diagnostics-btn {
+  background: rgba(0, 240, 255, 0.04);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  color: #00F0FF;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.term-diagnostics-btn:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: #00F0FF;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+}
+
+/* Code Syntax Highlighting tokens */
+.token.keyword { color: #FF0055; font-weight: 600; }
+.token.string { color: #10B981; }
+.token.number { color: #F59E0B; }
+.token.comment { color: #475569; font-style: italic; }
+.token.boolean { color: #8B5CF6; }
+.token.function { color: #3B82F6; }
+.token.property { color: #00F0FF; }
+
+/* Blinking prompt cursor */
+.terminal-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: #00F0FF;
+  margin-left: 4px;
+  animation: term-blink 1s steps(2, start) infinite;
+  vertical-align: middle;
+}
+
+@keyframes term-blink {
+  to { visibility: hidden; }
+}
+
+/* Typewriter animation helper */
+.typewriter-cursor {
+  border-right: 2px solid #00F0FF;
+  animation: type-blink 0.75s step-end infinite;
+}
+
+@keyframes type-blink {
+  from, to { border-color: transparent }
+  50% { border-color: #00F0FF; }
+}
+

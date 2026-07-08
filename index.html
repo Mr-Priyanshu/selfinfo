@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Metadata -->
+  <title>Priyanshu Garg | Senior Full-Stack Developer & Automation Architect</title>
+  <meta name="description" content="Senior Full-Stack Developer specializing in MERN platform development, database architecture, and complex API integrations. Discover how automation can reduce manual workloads by 50%.">
+  <meta name="keywords" content="Priyanshu Garg, Full-Stack Developer, MERN Developer, Automation Engineer, Meta Ads API integration, WhatsApp Business API automation, Jabalpur Software Engineer, White Force Infosystem">
+  <link rel="canonical" href="https://priyanshu-garg.dev">
+
+  <!-- Open Graph Metadata (Facebook / LinkedIn) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Priyanshu Garg | Senior Full-Stack Developer & Automation Architect">
+  <meta property="og:description" content="High-performance full-stack web platforms and API automation. Based in Jabalpur, MP.">
+  <meta property="og:image" content="./assets/images/og-share-card.png">
+  <meta property="og:url" content="https://priyanshu-garg.dev">
+
+  <!-- Twitter Metadata -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Priyanshu Garg | Senior Full-Stack Developer & Automation Architect">
+  <meta name="twitter:description" content="High-performance full-stack web platforms and API automation. Based in Jabalpur, MP.">
+  <meta name="twitter:image" content="./assets/images/og-share-card.png">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            voidBlack: '#03050B',
+            cardDark: '#070A13',
+            cyberCyan: '#00F0FF',
+            electricBlue: '#0066FF',
+            hyperPurple: '#7C3AED',
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter">
+
+  <!-- THREE.JS CANVAS BACKGROUND (z-index: 0) -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- SECTION 0: PRELOADER OVERLAY -->
+  <div id="preloader" class="fixed inset-0 z-[99] bg-voidBlack flex flex-col justify-center items-center pointer-events-auto">
+    <div class="loader-curtain">
+      <div id="loader-c1" class="loader-bar"></div>
+      <div id="loader-c2" class="loader-bar"></div>
+      <div id="loader-c3" class="loader-bar"></div>
+    </div>
+    <div class="relative z-[100] text-center">
+      <div id="preloader-counter" class="text-7xl md:text-8xl font-outfit font-extrabold text-cyberCyan neon-glow-cyan tracking-tighter">00%</div>
+      <div class="text-xs font-mono uppercase tracking-widest text-slate-400 mt-4">Connecting Node Pipelines...</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: NAVIGATION DOCK (z-index: 50) -->
+  <nav id="nav-dock" class="fixed top-6 left-1/2 -translate-x-1/2 z-[50] glass-panel rounded-full h-[54px] px-6 py-2 flex items-center gap-6 md:gap-8 max-w-max hidden md:flex">
+    <a href="#hero" class="nav-item text-xs font-mono tracking-widest uppercase text-cyberCyan font-semibold hover:text-white transition-colors">Home</a>
+    <a href="#about" class="nav-item text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">About</a>
+    <a href="#skills" class="nav-item text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">Skills</a>
+    <a href="#experience" class="nav-item text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">Experience</a>
+    <a href="#projects" class="nav-item text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">Work</a>
+    <a href="#contact" class="nav-item text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">Contact</a>
+  </nav>
+
+  <!-- MOBILE NAVIGATION TRIGGER & OVERLAY -->
+  <button id="mobile-nav-trigger" class="fixed top-6 right-6 z-[50] w-12 h-12 rounded-full glass-panel flex items-center justify-center text-white focus:outline-none md:hidden" aria-label="Toggle Navigation Menu">
+    <i class="fa-solid fa-bars-staggered text-lg"></i>
+  </button>
+  <div id="mobile-nav-overlay" class="fixed inset-0 z-[49] bg-voidBlack/95 flex flex-col justify-center items-center gap-8 -translate-y-full transition-transform duration-500 md:hidden">
+    <a href="#hero" class="mobile-nav-link text-2xl font-outfit font-bold text-white hover:text-cyberCyan transition-colors">Home</a>
+    <a href="#about" class="mobile-nav-link text-2xl font-outfit font-bold text-white hover:text-cyberCyan transition-colors">About</a>
+    <a href="#skills" class="mobile-nav-link text-2xl font-outfit font-bold text-white hover:text-cyberCyan transition-colors">Skills</a>
+    <a href="#experience" class="mobile-nav-link text-2xl font-outfit font-bold text-white hover:text-cyberCyan transition-colors">Experience</a>
+    <a href="#projects" class="mobile-nav-link text-2xl font-outfit font-bold text-white hover:text-cyberCyan transition-colors">Work</a>
+    <a href="#contact" class="mobile-nav-link text-2xl font-outfit font-bold text-white hover:text-cyberCyan transition-colors">Contact</a>
+  </div>
+
+  <!-- MAIN SCROLL CONTAINER -->
+  <main id="scroll-container" class="relative z-10 w-full">
+
+    <!-- SECTION 2: HERO -->
+    <section id="hero" class="w-full min-h-screen flex items-center px-6 md:px-24 py-32 overflow-hidden relative">
+      <!-- Grid overlay background for tech aesthetic -->
+      <div class="cyber-grid"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full max-w-7xl mx-auto z-10 relative">
+        
+        <!-- Typography and Core Profile (Left Column) -->
+        <div class="lg:col-span-7 flex flex-col gap-6 text-left">
+          
+          <!-- Availability Telemetry Badge -->
+          <div class="flex items-center gap-4 opacity-0-reveal">
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 flex items-center gap-2 text-[10px] font-mono tracking-wider uppercase text-slate-300">
+              <span class="status-pulse"></span>
+              STATUS: ONLINE // READY FOR HIRE
+            </span>
+            <span class="text-[10px] font-mono tracking-widest text-slate-500 uppercase hidden sm:inline">
+              LOC: JABALPUR, IN &bull; 23.18° N
+            </span>
+          </div>
+
+          <div>
+            <div class="tagline text-xs font-mono text-cyberCyan tracking-[0.3em] uppercase mb-3 opacity-0-reveal">
+              SENIOR FULL-STACK DEVELOPER & AUTOMATION ARCHITECT
+            </div>
+            <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl font-extrabold text-white tracking-tighter leading-none opacity-0-reveal">
+              PRIYANSHU<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">GARG</span>
+            </h1>
+          </div>
+
+          <!-- Dynamic Role Typewriter -->
+          <div class="text-sm font-mono text-slate-400 opacity-0-reveal flex items-center gap-1.5 h-6">
+            <span class="text-cyberCyan font-bold">$</span>
+            <span>node role:</span>
+            <span id="typewriter-text" class="font-semibold text-white"></span>
+            <span class="typewriter-cursor h-4 w-[2px]"></span>
+          </div>
+
+          <p class="hero-description text-sm md:text-base text-slate-400 max-w-xl opacity-0-reveal leading-relaxed">
+            I design and engineer automated, high-scale web platforms that centralize data pipelines and cut manual administrative operations in half. 
+          </p>
+
+          <div class="hero-ctas flex flex-wrap gap-4 opacity-0-reveal mt-2">
+            <a href="#projects" class="magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-sm px-8 py-3 rounded-full hover:scale-[1.03] active:scale-[0.98] transition-transform shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+              Explore Work <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+            </a>
+            <a href="#contact" class="magnetic border border-slate-700 hover:border-cyberCyan text-white font-semibold text-sm px-8 py-3 rounded-full hover:bg-slate-900/40 transition-colors">
+              Get in touch
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Interactive Terminal Console (Right Column) -->
+        <div class="lg:col-span-5 w-full flex justify-center opacity-0-reveal">
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-buttons">
+                <div class="terminal-btn close" title="Close Session"></div>
+                <div class="terminal-btn minimize" title="Suspend Pipeline"></div>
+                <div class="terminal-btn maximize" title="Expand View"></div>
+              </div>
+              <div class="terminal-tabs">
+                <span class="terminal-tab active" data-tab="logs">system.log</span>
+                <span class="terminal-tab" data-tab="config">config.json</span>
+                <span class="terminal-tab" data-tab="script">pipeline.js</span>
+              </div>
+              <button class="term-diagnostics-btn" id="terminal-diag-btn" title="Execute Pipeline Health Audit">
+                <i class="fa-solid fa-arrows-spin mr-1.5 animate-spin hidden" id="diag-spinner"></i>
+                <span id="diag-btn-text">Diagnostics</span>
+              </button>
+            </div>
+            <div class="terminal-body font-mono text-left" id="terminal-body-content">
+              <!-- Animated content loaded via terminal.js -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Scroll Indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 z-10">
+        <span class="text-[10px] font-mono tracking-widest uppercase">Scroll Down</span>
+        <div class="w-[1px] h-12 bg-gradient-to-b from-white to-transparent animate-bounce"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: ABOUT (IDENTITY) -->
+    <section id="about" class="w-full py-24 px-6 md:px-24 max-w-7xl mx-auto border-t border-slate-900">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+        <div class="lg:col-span-3 flex flex-col justify-center">
+          <span class="text-xs font-mono text-hyperPurple uppercase tracking-widest">01 // Identity</span>
+          <h2 class="text-3xl md:text-5xl font-bold mt-2 mb-6">Programmatic Automation</h2>
+          <p class="text-slate-400 leading-relaxed mb-6">
+            With over 3+ years of professional full-stack expertise, I build web solutions across MERN stacks, WordPress plugins, and Shopify systems. My primary focus lies in bridging the gaps between external platforms—integrating marketing channels, client relations (CLMS), and lead capture workflows.
+          </p>
+          <p class="text-slate-400 leading-relaxed">
+            Currently, I build centralized dashboard ecosystems like the Whiteforce Ad Manager. By writing robust Node.js pipelines and MySQL/PostgreSQL storage engines, I help teams coordinate campaign executions across Meta, Google Ads, LinkedIn, YouTube, and WhatsApp API services.
+          </p>
+        </div>
+        <div class="lg:col-span-2 flex flex-col justify-center" id="about-info-container">
+          <!-- Rendered dynamically from data.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SKILLS -->
+    <section id="skills" class="w-full py-24 px-6 md:px-24 max-w-7xl mx-auto border-t border-slate-900">
+      <span class="text-xs font-mono text-cyberCyan uppercase tracking-widest">02 // CAPABILITIES</span>
+      <h2 class="text-3xl md:text-5xl font-bold mt-2 mb-12">Technical Frameworks</h2>
+      <div id="skills-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Rendered dynamically from data.js -->
+      </div>
+    </section>
+
+    <!-- SECTION 5: EXPERIENCE -->
+    <section id="experience" class="w-full py-24 px-6 md:px-24 max-w-7xl mx-auto border-t border-slate-900 relative">
+      <span class="text-xs font-mono text-hyperPurple uppercase tracking-widest">03 // CHRONICLE</span>
+      <h2 class="text-3xl md:text-5xl font-bold mt-2 mb-16">Employment History</h2>
+      
+      <div class="relative pl-6 md:pl-0">
+        <!-- Vertical Progress Line -->
+        <div class="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] bg-slate-800 -translate-x-1/2">
+          <div id="timeline-progress" class="absolute top-0 left-0 w-full bg-cyberCyan origin-top h-0"></div>
+        </div>
+        
+        <div id="experience-container" class="flex flex-col gap-16">
+          <!-- Rendered dynamically from data.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: PROJECTS -->
+    <section id="projects" class="w-full py-24 px-6 md:px-24 max-w-7xl mx-auto border-t border-slate-900">
+      <span class="text-xs font-mono text-cyberCyan uppercase tracking-widest">04 // PORTFOLIO</span>
+      <h2 class="text-3xl md:text-5xl font-bold mt-2 mb-12">Featured Project Cases</h2>
+      <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Rendered dynamically from data.js -->
+      </div>
+    </section>
+
+    <!-- SECTION 7: ACHIEVEMENTS -->
+    <section id="achievements" class="w-full py-24 px-6 md:px-24 max-w-7xl mx-auto border-t border-slate-900">
+      <span class="text-xs font-mono text-hyperPurple uppercase tracking-widest">05 // OUTCOMES</span>
+      <h2 class="text-3xl md:text-5xl font-bold mt-2 mb-12">Performance Metrics</h2>
+      <div id="achievements-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Rendered dynamically from data.js -->
+      </div>
+    </section>
+
+    <!-- SECTION 8: CONTACT -->
+    <section id="contact" class="w-full py-24 px-6 md:px-24 max-w-3xl mx-auto border-t border-slate-900">
+      <div class="text-center mb-12">
+        <span class="text-xs font-mono text-cyberCyan uppercase tracking-widest">06 // GATEWAY</span>
+        <h2 class="text-3xl md:text-5xl font-bold mt-2">Initialize Contact</h2>
+        <p class="text-slate-400 mt-4">Let's discuss system integrations, performance optimizations, or full-stack openings.</p>
+      </div>
+
+      <div class="glass-panel p-8 md:p-12 rounded-2xl border border-white/5">
+        <form id="contact-form" novalidate class="flex flex-col gap-8">
+          <div class="relative">
+            <label for="contact-name" class="block text-[10px] font-mono text-cyberCyan uppercase tracking-widest mb-2">FULL NAME</label>
+            <input type="text" id="contact-name" name="name" required placeholder="Enter your full name" 
+              class="w-full bg-slate-950/40 border-b border-slate-800 py-3 px-4 text-white text-sm focus:outline-none focus:border-cyberCyan transition-colors rounded-t-md">
+            <span class="error-msg text-xs text-red-500 mt-1 hidden">Please provide your name.</span>
+          </div>
+
+          <div class="relative">
+            <label for="contact-email" class="block text-[10px] font-mono text-cyberCyan uppercase tracking-widest mb-2">EMAIL ADDRESS</label>
+            <input type="email" id="contact-email" name="email" required placeholder="name@company.com" 
+              class="w-full bg-slate-950/40 border-b border-slate-800 py-3 px-4 text-white text-sm focus:outline-none focus:border-cyberCyan transition-colors rounded-t-md">
+            <span class="error-msg text-xs text-red-500 mt-1 hidden">Please provide a valid email address.</span>
+          </div>
+
+          <div class="relative">
+            <label for="contact-message" class="block text-[10px] font-mono text-cyberCyan uppercase tracking-widest mb-2">PROJECT BRIEF</label>
+            <textarea id="contact-message" name="message" rows="5" required placeholder="Outline platform scope, timelines, or role details..." 
+              class="w-full bg-slate-950/40 border-b border-slate-800 py-3 px-4 text-white text-sm focus:outline-none focus:border-cyberCyan transition-colors rounded-t-md resize-none"></textarea>
+            <span class="error-msg text-xs text-red-500 mt-1 hidden">Please include your message content.</span>
+          </div>
+
+          <div class="flex justify-between items-center mt-6">
+            <span id="form-status" class="text-xs font-mono"></span>
+            <button type="submit" id="form-submit-btn" class="magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-sm px-8 py-3 rounded-full hover:scale-[1.03] active:scale-[0.98] transition-transform">
+              Send Message <i class="fa-solid fa-paper-plane ml-2"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- SECTION 9: FOOTER -->
+    <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-6 md:px-24 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+      <div class="flex flex-col gap-2">
+        <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+        <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+      </div>
+      <div class="flex flex-col items-center md:items-end gap-3">
+        <div class="flex gap-6 text-sm font-mono">
+          <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+          <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+          <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+        </div>
+        <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Core Scripts (Three.js, GSAP, Lenis) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+  <!-- Modular JavaScript Orchestrator -->
+  <script type="module" src="./assets/js/main.js?v=1.0.1"></script>
+
+</body>
+</html>
