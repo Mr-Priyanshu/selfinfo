@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Video Cropper | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        voidBlack: '#03050B',
+                        cardDark: '#070A13',
+                        cyberCyan: '#00F0FF',
+                        electricBlue: '#0066FF',
+                        hyperPurple: '#7C3AED',
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'pulse-soft': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .crop-overlay {
+            position: absolute;
+            border: 2px solid #00F0FF;
+            background: rgba(0, 240, 255, 0.1);
+            cursor: move;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+        
+        .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #00F0FF;
+            border: 2px solid #03050b;
+            border-radius: 50%;
+        }
+        
+        .resize-handle:hover {
+            background: #0066FF;
+            transform: scale(1.2);
+        }
+        
+        .handle-nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .handle-ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .handle-sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .handle-se { bottom: -6px; right: -6px; cursor: se-resize; }
+        .handle-n { top: -6px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+        .handle-s { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+        .handle-w { top: 50%; left: -6px; transform: translateY(-50%); cursor: w-resize; }
+        .handle-e { top: 50%; right: -6px; transform: translateY(-50%); cursor: e-resize; }
+        
+        .video-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00F0FF;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00F0FF;
+        }
+    </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // VIDEO CROPPER
+            </span>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-10">
+            <!-- TITLE & LEAD -->
+            <div class="text-left border-b border-white/5 pb-6">
+                <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">VIDEO PREPARATION DOCK</span>
+                <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+                    VIDEO <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">CROPPING</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                    Crop and transform video frames client-side using custom canvas scaling. Crop to standards (16:9, 9:16, 1:1) or custom bounds with real-time feedback.
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex flex-col gap-6">
+                <!-- Import Area -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20">
+                    <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold block mb-4">1. IMPORT TARGET VIDEO</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Upload Video File</label>
+                            <input type="file" id="videoUpload" accept="video/mp4,video/webm,video/mov,video/avi" 
+                                   class="w-full p-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-xs text-white focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-cyberCyan/10 file:text-cyberCyan file:text-[10px] file:font-mono file:uppercase file:cursor-pointer hover:file:bg-cyberCyan/20 transition-all font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Or Direct URL Link</label>
+                            <div class="flex gap-2">
+                                <input type="url" id="videoUrl" placeholder="https://example.com/video.mp4" 
+                                       class="flex-1 p-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                                <button id="loadUrl" class="px-4 py-2 border border-slate-700 hover:border-cyberCyan text-white text-xs font-mono uppercase rounded-lg hover:bg-slate-900/40 transition-colors">
+                                    Load
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Workspace -->
+                <div id="videoEditor" class="hidden flex flex-col gap-6">
+                    <!-- Config Panel -->
+                    <div class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20 flex flex-col gap-6">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">2. EDITING CONTROLS</span>
+                        
+                        <!-- Core sliders & values -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Aspect Ratio</label>
+                                <select id="aspectRatio" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none">
+                                    <option value="free">Free</option>
+                                    <option value="16:9">16:9 Land</option>
+                                    <option value="4:3">4:3 Standard</option>
+                                    <option value="1:1">1:1 Square</option>
+                                    <option value="9:16">9:16 Port</option>
+                                    <option value="21:9">21:9 Cinema</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider flex justify-between mb-2">
+                                    <span>Zoom</span>
+                                    <span id="zoomValue" class="text-cyberCyan font-bold">100%</span>
+                                </label>
+                                <input type="range" id="zoomSlider" min="50" max="300" value="100" class="w-full h-1 bg-slate-800 appearance-none cursor-pointer accent-cyberCyan">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Rotation</label>
+                                <div class="flex gap-1.5 font-mono">
+                                    <button id="rotateLeft" class="flex-1 py-2 border border-slate-700 hover:border-cyberCyan text-white text-[10px] uppercase rounded transition-colors bg-slate-900">↶ 90°</button>
+                                    <button id="rotateRight" class="flex-1 py-2 border border-slate-700 hover:border-cyberCyan text-white text-[10px] uppercase rounded transition-colors bg-slate-900">↷ 90°</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Pos X</label>
+                                <input type="number" id="positionX" value="0" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Pos Y</label>
+                                <input type="number" id="positionY" value="0" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Actions</label>
+                                <div class="flex gap-1.5 font-mono">
+                                    <button id="undoBtn" class="flex-1 py-2 border border-yellow-500/20 bg-yellow-500/10 text-yellow-400 text-xs rounded hover:border-yellow-500 transition-colors" title="Undo (Ctrl+Z)">↶</button>
+                                    <button id="redoBtn" class="flex-1 py-2 border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-xs rounded hover:border-emerald-500 transition-colors" title="Redo (Ctrl+Y)">↷</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Crop Dimensions -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 border-t border-white/5 pt-4">
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Width (px)</label>
+                                <input type="number" id="cropWidth" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Height (px)</label>
+                                <input type="number" id="cropHeight" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Start X</label>
+                                <input type="number" id="cropX" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Start Y</label>
+                                <input type="number" id="cropY" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Viewports -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Original Video Box -->
+                        <div class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20 text-center flex flex-col gap-4">
+                            <h3 class="text-xs font-mono uppercase tracking-widest text-cyberCyan font-bold text-left">📹 ORIGINAL MONITOR</h3>
+                            <div class="video-container bg-voidBlack rounded-xl overflow-hidden relative border border-white/5">
+                                <video id="originalVideo" class="w-full h-auto max-h-[360px]" controls muted>
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div id="cropOverlay" class="crop-overlay hidden">
+                                    <div class="resize-handle handle-nw"></div>
+                                    <div class="resize-handle handle-ne"></div>
+                                    <div class="resize-handle handle-sw"></div>
+                                    <div class="resize-handle handle-se"></div>
+                                    <div class="resize-handle handle-n"></div>
+                                    <div class="resize-handle handle-s"></div>
+                                    <div class="resize-handle handle-w"></div>
+                                    <div class="resize-handle handle-e"></div>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-950/40 rounded-xl border border-white/5 text-left text-xs font-mono text-slate-500" id="originalInfo">
+                                Select a video to start cropping
+                            </div>
+                        </div>
+
+                        <!-- Preview Canvas Box -->
+                        <div class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20 text-center flex flex-col gap-4">
+                            <h3 class="text-xs font-mono uppercase tracking-widest text-hyperPurple font-bold text-left">✂️ CROPPED VIEWPORT</h3>
+                            <div class="bg-voidBlack rounded-xl overflow-hidden relative border border-white/5 flex items-center justify-center min-h-[160px] p-2">
+                                <canvas id="previewCanvas" class="w-full h-auto max-h-[360px] object-contain rounded"></canvas>
+                            </div>
+                            <div class="p-3 bg-slate-950/40 rounded-xl border border-white/5 text-left text-xs font-mono text-slate-500" id="previewInfo">
+                                Preview will appear here
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Settings -->
+                    <div class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20 flex flex-col gap-6">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">3. PIPELINE EXPORT DOCK</span>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Output Format</label>
+                                <select id="exportFormat" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none">
+                                    <option value="mp4">MP4 Video</option>
+                                    <option value="gif">GIF Animation</option>
+                                    <option value="webm">WebM Video</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Quality</label>
+                                <select id="exportQuality" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none">
+                                    <option value="high">High Quality</option>
+                                    <option value="medium">Medium Quality</option>
+                                    <option value="low">Low Quality</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">Filename</label>
+                                <input type="text" id="exportFilename" value="cropped_video" 
+                                       class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4 border-t border-white/5 pt-6 mt-2">
+                            <button id="downloadBtn" class="magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs px-8 py-3 rounded-xl hover:scale-[1.02] flex-1">
+                                🎬 Download Cropped Video
+                            </button>
+                            <button id="resetBtn" class="px-6 py-3 border border-slate-700 hover:border-cyberCyan text-white text-xs font-mono uppercase rounded-lg hover:bg-slate-900/40 transition-colors">
+                                🔄 Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20">
+                <span class="text-[10px] font-mono tracking-widest uppercase text-amber-400 font-bold block mb-4"><i class="fa-solid fa-lightbulb"></i> WORKSPACE ADVISORY TIPS</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-400">
+                    <div>
+                        <h4 class="font-bold text-white mb-2 font-mono text-[10px] uppercase text-slate-300">Keyboard Shortcuts:</h4>
+                        <ul class="space-y-1.5 font-mono text-[11px]">
+                            <li><kbd class="bg-voidBlack px-1.5 py-0.5 rounded border border-white/10 text-white">Ctrl + Z</kbd> - Undo Action</li>
+                            <li><kbd class="bg-voidBlack px-1.5 py-0.5 rounded border border-white/10 text-white">Ctrl + Y</kbd> - Redo Action</li>
+                            <li><kbd class="bg-voidBlack px-1.5 py-0.5 rounded border border-white/10 text-white">Space</kbd> - Play / Pause Video</li>
+                            <li><kbd class="bg-voidBlack px-1.5 py-0.5 rounded border border-white/10 text-white">R</kbd> - Reset Crop Bounds</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white mb-2 font-mono text-[10px] uppercase text-slate-300">System Integration Tips:</h4>
+                        <ul class="space-y-1 list-none pl-0">
+                            <li>• Click and drag the cyan crop overlay box to reposition the cropping area.</li>
+                            <li>• Use the circle edge boundary handles to scale the crop region.</li>
+                            <li>• Lock aspect ratio controls for standardized social dimensions.</li>
+                            <li>• View the final viewport canvas updating live during frame sweeps.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+          <div class="flex flex-col gap-2">
+            <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+            <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+          </div>
+          <div class="flex flex-col items-center md:items-end gap-3">
+            <div class="flex gap-6 text-sm font-mono">
+              <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+              <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+              <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+            </div>
+            <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+          </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Global variables
+        let originalVideo, previewCanvas, ctx, cropOverlay;
+        let cropData = { x: 0, y: 0, width: 100, height: 100 };
+        let videoData = { width: 0, height: 0, rotation: 0, zoom: 1 };
+        let isResizing = false, isDragging = false;
+        let history = [], historyIndex = -1;
+        let aspectRatioLocked = false;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeElements();
+            setupEventListeners();
+            setupKeyboardShortcuts();
+        });
+
+        function initializeElements() {
+            originalVideo = document.getElementById('originalVideo');
+            previewCanvas = document.getElementById('previewCanvas');
+            ctx = previewCanvas.getContext('2d');
+            cropOverlay = document.getElementById('cropOverlay');
+        }
+
+        function setupEventListeners() {
+            // File upload
+            document.getElementById('videoUpload').addEventListener('change', handleFileUpload);
+            document.getElementById('loadUrl').addEventListener('click', handleUrlLoad);
+
+            // Controls
+            document.getElementById('aspectRatio').addEventListener('change', handleAspectRatioChange);
+            document.getElementById('zoomSlider').addEventListener('input', handleZoomChange);
+            document.getElementById('rotateLeft').addEventListener('click', () => rotateVideo(-90));
+            document.getElementById('rotateRight').addEventListener('click', () => rotateVideo(90));
+            
+            // Position controls
+            document.getElementById('positionX').addEventListener('input', updatePosition);
+            document.getElementById('positionY').addEventListener('input', updatePosition);
+            
+            // Crop dimensions
+            ['cropWidth', 'cropHeight', 'cropX', 'cropY'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateCropFromInputs);
+            });
+
+            // Action buttons
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('redoBtn').addEventListener('click', redo);
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('downloadBtn').addEventListener('click', downloadVideo);
+
+            // Video events
+            originalVideo.addEventListener('loadedmetadata', handleVideoLoaded);
+            originalVideo.addEventListener('timeupdate', updatePreview);
+
+            // Crop overlay events
+            setupCropOverlayEvents();
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                } else if (e.ctrlKey && e.key === 'y') {
+                    e.preventDefault();
+                    redo();
+                } else if (e.key === ' ') {
+                    e.preventDefault();
+                    togglePlayPause();
+                } else if (e.key === 'r' || e.key === 'R') {
+                    e.preventDefault();
+                    resetCrop();
+                }
+            });
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                loadVideo(url);
+            }
+        }
+
+        function handleUrlLoad() {
+            const url = document.getElementById('videoUrl').value.trim();
+            if (url) {
+                loadVideo(url);
+            }
+        }
+
+        function loadVideo(src) {
+            originalVideo.src = src;
+            originalVideo.load();
+            document.getElementById('videoEditor').classList.remove('hidden');
+        }
+
+        function handleVideoLoaded() {
+            videoData.width = originalVideo.videoWidth;
+            videoData.height = originalVideo.videoHeight;
+            
+            // Update info
+            document.getElementById('originalInfo').textContent = 
+                `${videoData.width} × ${videoData.height} pixels`;
+            
+            // Initialize crop area (center 80% of video)
+            const margin = 0.1;
+            cropData = {
+                x: videoData.width * margin,
+                y: videoData.height * margin,
+                width: videoData.width * (1 - 2 * margin),
+                height: videoData.height * (1 - 2 * margin)
+            };
+            
+            // Setup canvas
+            setupPreviewCanvas();
+            updateCropInputs();
+            updateCropOverlay();
+            updatePreview();
+            saveToHistory();
+        }
+
+        function setupPreviewCanvas() {
+            const aspectRatio = cropData.width / cropData.height;
+            const maxWidth = previewCanvas.parentElement.clientWidth - 32;
+            const maxHeight = 400;
+            
+            if (aspectRatio > maxWidth / maxHeight) {
+                previewCanvas.width = maxWidth;
+                previewCanvas.height = maxWidth / aspectRatio;
+            } else {
+                previewCanvas.height = maxHeight;
+                previewCanvas.width = maxHeight * aspectRatio;
+            }
+            
+            previewCanvas.style.width = previewCanvas.width + 'px';
+            previewCanvas.style.height = previewCanvas.height + 'px';
+        }
+
+        function updatePreview() {
+            if (!originalVideo.videoWidth) return;
+            
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+            
+            // Calculate scaling
+            const scaleX = previewCanvas.width / cropData.width;
+            const scaleY = previewCanvas.height / cropData.height;
+            
+            // Apply transformations
+            ctx.save();
+            
+            // Apply zoom and rotation if needed
+            if (videoData.rotation !== 0) {
+                ctx.translate(previewCanvas.width / 2, previewCanvas.height / 2);
+                ctx.rotate(videoData.rotation * Math.PI / 180);
+                ctx.translate(-previewCanvas.width / 2, -previewCanvas.height / 2);
+            }
+            
+            // Draw cropped portion
+            ctx.drawImage(
+                originalVideo,
+                cropData.x, cropData.y, cropData.width, cropData.height,
+                0, 0, previewCanvas.width, previewCanvas.height
+            );
+            
+            ctx.restore();
+            
+            // Update preview info
+            document.getElementById('previewInfo').textContent = 
+                `${Math.round(cropData.width)} × ${Math.round(cropData.height)} pixels`;
+        }
+
+        function setupCropOverlayEvents() {
+            let startX, startY, startCropX, startCropY, startWidth, startHeight;
+            let resizeHandle = null;
+
+            // Mouse down on overlay
+            cropOverlay.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                const rect = originalVideo.getBoundingClientRect();
+                const scaleX = originalVideo.videoWidth / rect.width;
+                const scaleY = originalVideo.videoHeight / rect.height;
+                
+                startX = (e.clientX - rect.left) * scaleX;
+                startY = (e.clientY - rect.top) * scaleY;
+                startCropX = cropData.x;
+                startCropY = cropData.y;
+                startWidth = cropData.width;
+                startHeight = cropData.height;
+                
+                if (e.target.classList.contains('resize-handle')) {
+                    isResizing = true;
+                    resizeHandle = e.target.classList[1]; // Get handle class
+                } else {
+                    isDragging = true;
+                }
+            });
+
+            // Mouse move
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing && !isDragging) return;
+                
+                const rect = originalVideo.getBoundingClientRect();
+                const scaleX = originalVideo.videoWidth / rect.width;
+                const scaleY = originalVideo.videoHeight / rect.height;
+                
+                const currentX = (e.clientX - rect.left) * scaleX;
+                const currentY = (e.clientY - rect.top) * scaleY;
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                if (isDragging) {
+                    cropData.x = Math.max(0, Math.min(startCropX + deltaX, videoData.width - cropData.width));
+                    cropData.y = Math.max(0, Math.min(startCropY + deltaY, videoData.height - cropData.height));
+                } else if (isResizing) {
+                    handleResize(resizeHandle, deltaX, deltaY, startCropX, startCropY, startWidth, startHeight);
+                }
+                
+                updateCropOverlay();
+                updateCropInputs();
+                updatePreview();
+            });
+
+            // Mouse up
+            document.addEventListener('mouseup', function() {
+                if (isResizing || isDragging) {
+                    saveToHistory();
+                }
+                isResizing = false;
+                isDragging = false;
+                resizeHandle = null;
+            });
+        }
+
+        function handleResize(handle, deltaX, deltaY, startX, startY, startW, startH) {
+            let newX = startX, newY = startY, newW = startW, newH = startH;
+            
+            switch(handle) {
+                case 'handle-nw':
+                    newX = startX + deltaX;
+                    newY = startY + deltaY;
+                    newW = startW - deltaX;
+                    newH = startH - deltaY;
+                    break;
+                case 'handle-ne':
+                    newY = startY + deltaY;
+                    newW = startW + deltaX;
+                    newH = startH - deltaY;
+                    break;
+                case 'handle-sw':
+                    newX = startX + deltaX;
+                    newW = startW - deltaX;
+                    newH = startH + deltaY;
+                    break;
+                case 'handle-se':
+                    newW = startW + deltaX;
+                    newH = startH + deltaY;
+                    break;
+                case 'handle-n':
+                    newY = startY + deltaY;
+                    newH = startH - deltaY;
+                    break;
+                case 'handle-s':
+                    newH = startH + deltaY;
+                    break;
+                case 'handle-w':
+                    newX = startX + deltaX;
+                    newW = startW - deltaX;
+                    break;
+                case 'handle-e':
+                    newW = startW + deltaX;
+                    break;
+            }
+            
+            // Apply aspect ratio constraint if locked
+            if (aspectRatioLocked) {
+                const aspectRatio = getSelectedAspectRatio();
+                if (aspectRatio) {
+                    newH = newW / aspectRatio;
+                }
+            }
+            
+            // Constrain to video bounds
+            newX = Math.max(0, newX);
+            newY = Math.max(0, newY);
+            newW = Math.max(10, Math.min(newW, videoData.width - newX));
+            newH = Math.max(10, Math.min(newH, videoData.height - newY));
+            
+            cropData.x = newX;
+            cropData.y = newY;
+            cropData.width = newW;
+            cropData.height = newH;
+        }
+
+        function updateCropOverlay() {
+            if (!originalVideo.videoWidth) return;
+            
+            const rect = originalVideo.getBoundingClientRect();
+            const scaleX = rect.width / originalVideo.videoWidth;
+            const scaleY = rect.height / originalVideo.videoHeight;
+            
+            cropOverlay.style.left = (cropData.x * scaleX) + 'px';
+            cropOverlay.style.top = (cropData.y * scaleY) + 'px';
+            cropOverlay.style.width = (cropData.width * scaleX) + 'px';
+            cropOverlay.style.height = (cropData.height * scaleY) + 'px';
+            cropOverlay.classList.remove('hidden');
+        }
+
+        function updateCropInputs() {
+            document.getElementById('cropX').value = Math.round(cropData.x);
+            document.getElementById('cropY').value = Math.round(cropData.y);
+            document.getElementById('cropWidth').value = Math.round(cropData.width);
+            document.getElementById('cropHeight').value = Math.round(cropData.height);
+        }
+
+        function updateCropFromInputs() {
+            cropData.x = parseInt(document.getElementById('cropX').value) || 0;
+            cropData.y = parseInt(document.getElementById('cropY').value) || 0;
+            cropData.width = parseInt(document.getElementById('cropWidth').value) || 100;
+            cropData.height = parseInt(document.getElementById('cropHeight').value) || 100;
+            
+            // Constrain to video bounds
+            cropData.x = Math.max(0, Math.min(cropData.x, videoData.width - cropData.width));
+            cropData.y = Math.max(0, Math.min(cropData.y, videoData.height - cropData.height));
+            cropData.width = Math.max(10, Math.min(cropData.width, videoData.width - cropData.x));
+            cropData.height = Math.max(10, Math.min(cropData.height, videoData.height - cropData.y));
+            
+            updateCropOverlay();
+            updatePreview();
+            setupPreviewCanvas();
+        }
+
+        function handleAspectRatioChange() {
+            const ratio = document.getElementById('aspectRatio').value;
+            aspectRatioLocked = ratio !== 'free';
+            
+            if (aspectRatioLocked) {
+                const aspectRatio = getSelectedAspectRatio();
+                if (aspectRatio) {
+                    cropData.height = cropData.width / aspectRatio;
+                    updateCropInputs();
+                    updateCropOverlay();
+                    updatePreview();
+                    setupPreviewCanvas();
+                }
+            }
+        }
+
+        function getSelectedAspectRatio() {
+            const ratios = {
+                '16:9': 16/9,
+                '4:3': 4/3,
+                '1:1': 1,
+                '9:16': 9/16,
+                '21:9': 21/9
+            };
+            return ratios[document.getElementById('aspectRatio').value];
+        }
+
+        function handleZoomChange() {
+            const zoom = document.getElementById('zoomSlider').value / 100;
+            document.getElementById('zoomValue').textContent = document.getElementById('zoomSlider').value + '%';
+            videoData.zoom = zoom;
+            updatePreview();
+        }
+
+        function rotateVideo(degrees) {
+            videoData.rotation = (videoData.rotation + degrees) % 360;
+            updatePreview();
+            saveToHistory();
+        }
+
+        function updatePosition() {
+            const x = parseInt(document.getElementById('positionX').value) || 0;
+            const y = parseInt(document.getElementById('positionY').value) || 0;
+            
+            cropData.x = Math.max(0, Math.min(x, videoData.width - cropData.width));
+            cropData.y = Math.max(0, Math.min(y, videoData.height - cropData.height));
+            
+            updateCropInputs();
+            updateCropOverlay();
+            updatePreview();
+        }
+
+        function saveToHistory() {
+            // Remove any future history if we're not at the end
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            
+            // Add current state to history
+            history.push({
+                cropData: {...cropData},
+                videoData: {...videoData}
+            });
+            
+            // Limit history size
+            if (history.length > 50) {
+                history.shift();
+            } else {
+                historyIndex++;
+            }
+            
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const state = history[historyIndex];
+                cropData = {...state.cropData};
+                videoData = {...state.videoData};
+                
+                updateCropInputs();
+                updateCropOverlay();
+                updatePreview();
+                updateControls();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                const state = history[historyIndex];
+                cropData = {...state.cropData};
+                videoData = {...state.videoData};
+                
+                updateCropInputs();
+                updateCropOverlay();
+                updatePreview();
+                updateControls();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            document.getElementById('undoBtn').disabled = historyIndex <= 0;
+            document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+        }
+
+        function updateControls() {
+            document.getElementById('positionX').value = Math.round(cropData.x);
+            document.getElementById('positionY').value = Math.round(cropData.y);
+            document.getElementById('zoomSlider').value = Math.round(videoData.zoom * 100);
+            document.getElementById('zoomValue').textContent = Math.round(videoData.zoom * 100) + '%';
+        }
+
+        function resetCrop() {
+            const margin = 0.1;
+            cropData = {
+                x: videoData.width * margin,
+                y: videoData.height * margin,
+                width: videoData.width * (1 - 2 * margin),
+                height: videoData.height * (1 - 2 * margin)
+            };
+            
+            updateCropInputs();
+            updateCropOverlay();
+            updatePreview();
+            setupPreviewCanvas();
+            saveToHistory();
+        }
+
+        function resetAll() {
+            videoData.rotation = 0;
+            videoData.zoom = 1;
+            document.getElementById('aspectRatio').value = 'free';
+            aspectRatioLocked = false;
+            resetCrop();
+            updateControls();
+        }
+
+        function togglePlayPause() {
+            if (originalVideo.paused) {
+                originalVideo.play();
+            } else {
+                originalVideo.pause();
+            }
+        }
+
+        async function downloadVideo() {
+            const format = document.getElementById('exportFormat').value;
+            const quality = document.getElementById('exportQuality').value;
+            const filename = document.getElementById('exportFilename').value || 'cropped_video';
+            
+            showNotification('Processing video... Please wait');
+            
+            try {
+                if (format === 'gif') {
+                    await downloadAsGIF(filename, quality);
+                } else {
+                    await downloadAsVideo(filename, format, quality);
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message);
+            }
+        }
+
+        async function downloadAsGIF(filename, quality) {
+            // Use MediaRecorder to create actual video/gif
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size based on crop
+            canvas.width = Math.round(cropData.width);
+            canvas.height = Math.round(cropData.height);
+            
+            // Create video stream from canvas
+            const stream = canvas.captureStream(30); // 30 FPS
+            const recorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm;codecs=vp9'
+            });
+            
+            const chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename + '.webm';
+                a.click();
+                URL.revokeObjectURL(url);
+                                    showNotification('Video processing complete! Check your downloads folder.');
+            };
+            
+            // Start recording
+            recorder.start();
+            
+            // Record for video duration or max 10 seconds
+            const duration = Math.min(originalVideo.duration * 1000, 10000);
+            const startTime = originalVideo.currentTime;
+            const endTime = Math.min(startTime + duration/1000, originalVideo.duration);
+            
+            originalVideo.currentTime = startTime;
+            
+            const recordFrame = () => {
+                // Draw cropped video frame to canvas
+                ctx.drawImage(
+                    originalVideo,
+                    cropData.x, cropData.y, cropData.width, cropData.height,
+                    0, 0, canvas.width, canvas.height
+                );
+                
+                if (originalVideo.currentTime < endTime && !originalVideo.ended) {
+                    requestAnimationFrame(recordFrame);
+                } else {
+                    recorder.stop();
+                }
+            };
+            
+            // Start the recording loop
+            originalVideo.play();
+            recordFrame();
+            
+            // Stop recording after duration
+            setTimeout(() => {
+                recorder.stop();
+                originalVideo.pause();
+            }, duration);
+        }
+
+        async function downloadAsVideo(filename, format, quality) {
+            // Create canvas for video recording
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set quality-based dimensions
+            let scaleFactor = quality === 'high' ? 1 : quality === 'medium' ? 0.8 : 0.6;
+            canvas.width = Math.round(cropData.width * scaleFactor);
+            canvas.height = Math.round(cropData.height * scaleFactor);
+            
+            // Determine MIME type
+            let mimeType;
+            switch(format) {
+                case 'mp4':
+                    mimeType = 'video/mp4;codecs=h264';
+                    break;
+                case 'webm':
+                    mimeType = 'video/webm;codecs=vp9';
+                    break;
+                default:
+                    mimeType = 'video/webm;codecs=vp9';
+            }
+            
+            // Check if format is supported
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'video/webm'; // Fallback
+            }
+            
+            const stream = canvas.captureStream(30);
+            const recorder = new MediaRecorder(stream, { mimeType });
+            
+            const chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            
+            return new Promise((resolve, reject) => {
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: mimeType });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename + '.' + format;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showNotification('Cropped video downloaded successfully!');
+                    resolve();
+                };
+                
+                recorder.onerror = reject;
+                
+                // Start recording
+                recorder.start();
+                
+                // Record the video
+                const startTime = originalVideo.currentTime;
+                const maxDuration = 30000; // Max 30 seconds
+                const actualDuration = Math.min(originalVideo.duration * 1000, maxDuration);
+                
+                originalVideo.currentTime = startTime;
+                originalVideo.play();
+                
+                const recordFrame = () => {
+                    // Apply rotation if needed
+                    ctx.save();
+                    
+                    if (videoData.rotation !== 0) {
+                        ctx.translate(canvas.width / 2, canvas.height / 2);
+                        ctx.rotate(videoData.rotation * Math.PI / 180);
+                        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+                    }
+                    
+                    // Draw cropped video frame
+                    ctx.drawImage(
+                        originalVideo,
+                        cropData.x, cropData.y, cropData.width, cropData.height,
+                        0, 0, canvas.width, canvas.height
+                    );
+                    
+                    ctx.restore();
+                    
+                    if (!originalVideo.ended && originalVideo.currentTime < startTime + actualDuration/1000) {
+                        requestAnimationFrame(recordFrame);
+                    }
+                };
+                
+                recordFrame();
+                
+                // Stop recording after duration
+                setTimeout(() => {
+                    recorder.stop();
+                    originalVideo.pause();
+                }, actualDuration);
+            });
+        }
+
+        function downloadDataURL(dataURL, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (originalVideo.videoWidth) {
+                updateCropOverlay();
+            }
+        });
+
+        // Prevent default drag behavior on video
+        originalVideo.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+        });
+
+        // Additional helper functions for advanced features
+        function exportCurrentFrame() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = cropData.width;
+            canvas.height = cropData.height;
+            
+            ctx.drawImage(
+                originalVideo,
+                cropData.x, cropData.y, cropData.width, cropData.height,
+                0, 0, canvas.width, canvas.height
+            );
+            
+            const dataURL = canvas.toDataURL('image/png');
+            downloadDataURL(dataURL, 'frame_' + Math.round(originalVideo.currentTime) + 's.png');
+        }
+
+        function presetCropSizes() {
+            const presets = {
+                'Instagram Square': { width: 1080, height: 1080 },
+                'Instagram Story': { width: 1080, height: 1920 },
+                'YouTube Thumbnail': { width: 1280, height: 720 },
+                'Twitter Post': { width: 1200, height: 675 },
+                'Facebook Cover': { width: 1200, height: 630 }
+            };
+            
+            // This could be extended to show a preset menu
+            return presets;
+        }
+
+        // Performance optimization for large videos
+        function optimizeForLargeVideos() {
+            if (videoData.width > 1920 || videoData.height > 1080) {
+                // Reduce update frequency for very large videos
+                let updateTimeout;
+                const originalUpdatePreview = updatePreview;
+                updatePreview = function() {
+                    clearTimeout(updateTimeout);
+                    updateTimeout = setTimeout(originalUpdatePreview, 16); // ~60fps limit
+                };
+            }
+        }
+
+        // Error handling
+        originalVideo.addEventListener('error', function(e) {
+            showNotification('Error loading video: ' + e.message);
+            console.error('Video error:', e);
+        });
+
+        // Loading state management
+        originalVideo.addEventListener('loadstart', function() {
+            document.getElementById('originalInfo').textContent = 'Loading video...';
+        });
+
+        originalVideo.addEventListener('canplay', function() {
+            optimizeForLargeVideos();
+        });
+
+        // Touch support for mobile devices
+        function setupTouchSupport() {
+            let touchStartX, touchStartY;
+            
+            cropOverlay.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = originalVideo.getBoundingClientRect();
+                const scaleX = originalVideo.videoWidth / rect.width;
+                const scaleY = originalVideo.videoHeight / rect.height;
+                
+                touchStartX = (touch.clientX - rect.left) * scaleX;
+                touchStartY = (touch.clientY - rect.top) * scaleY;
+                isDragging = true;
+            });
+            
+            cropOverlay.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                const rect = originalVideo.getBoundingClientRect();
+                const scaleX = originalVideo.videoWidth / rect.width;
+                const scaleY = originalVideo.videoHeight / rect.height;
+                
+                const currentX = (touch.clientX - rect.left) * scaleX;
+                const currentY = (touch.clientY - rect.top) * scaleY;
+                const deltaX = currentX - touchStartX;
+                const deltaY = currentY - touchStartY;
+                
+                cropData.x = Math.max(0, Math.min(cropData.x + deltaX, videoData.width - cropData.width));
+                cropData.y = Math.max(0, Math.min(cropData.y + deltaY, videoData.height - cropData.height));
+                
+                updateCropOverlay();
+                updateCropInputs();
+                updatePreview();
+                
+                touchStartX = currentX;
+                touchStartY = currentY;
+            });
+            
+            cropOverlay.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                isDragging = false;
+                saveToHistory();
+            });
+        }
+        
+        // Initialize touch support
+        setupTouchSupport();
+
+    </script>
+</body>
+</html>

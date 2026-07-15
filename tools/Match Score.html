@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATS Match Score | Priyanshu Garg Tools</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            voidBlack: '#03050B',
+            cardDark: '#070A13',
+            cyberCyan: '#00F0FF',
+            electricBlue: '#0066FF',
+            hyperPurple: '#7C3AED',
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <style>
+    /* Custom circular progress styles */
+    .circle-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.05);
+      stroke-width: 8;
+    }
+    .circle-progress {
+      fill: none;
+      stroke: url(#cyan-purple-grad);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s ease-in-out;
+    }
+    .glow-cyan-hover:hover {
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+      border-color: rgba(0, 240, 255, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter">
+
+  <!-- Grid overlay background for tech aesthetic -->
+  <div class="cyber-grid"></div>
+
+  <!-- Radial Glow Background -->
+  <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+  <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- MAIN SCROLL CONTAINER -->
+  <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+    
+    <!-- HEADER -->
+    <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+      <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+        <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+      </a>
+      <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+        <span class="status-pulse"></span> PRIYANSHU GARG // ATS AUDITOR
+      </span>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <div class="flex-grow flex flex-col gap-10">
+      
+      <!-- TITLE & LEAD -->
+      <div class="text-left">
+        <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">RESUME OPTIMIZER</span>
+        <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+          ATS MATCH <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">SCORE</span>
+        </h1>
+        <p class="text-xs md:text-sm text-slate-400 max-w-2xl leading-relaxed">
+          Compare your resume against any job description. Identify missing keywords, calculate score compatibility, and format your profile to pass recruitment screening systems. Everything runs local.
+        </p>
+      </div>
+
+      <!-- WORKSPACE -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Side: Inputs -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+          <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-6">
+            
+            <!-- Resume Input -->
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">1. PASTED RESUME TEXT</label>
+              <div id="resumeDropZone" class="relative group border border-dashed border-slate-800 rounded-xl p-4 transition-all hover:border-cyberCyan/35 bg-slate-950/20">
+                <textarea id="resumeText" rows="6" placeholder="Paste full resume text or drag-and-drop plain text files here..." 
+                  class="w-full bg-transparent border-0 resize-none text-xs text-slate-300 focus:outline-none focus:ring-0"></textarea>
+                <div class="absolute bottom-2 right-3 flex items-center gap-2 pointer-events-none opacity-50 text-[10px] font-mono">
+                  <i class="fa-solid fa-file-arrow-up"></i> DRAG & DROP TXT
+                </div>
+              </div>
+            </div>
+
+            <!-- Job Description Input -->
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">2. JOB DESCRIPTION</label>
+              <div id="jobDropZone" class="relative group border border-dashed border-slate-800 rounded-xl p-4 transition-all hover:border-hyperPurple/35 bg-slate-950/20">
+                <textarea id="jobText" rows="6" placeholder="Paste the target job description or requirements here..." 
+                  class="w-full bg-transparent border-0 resize-none text-xs text-slate-300 focus:outline-none focus:ring-0"></textarea>
+                <div class="absolute bottom-2 right-3 flex items-center gap-2 pointer-events-none opacity-50 text-[10px] font-mono">
+                  <i class="fa-solid fa-file-lines"></i> DRAG & DROP TXT
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="analyzeBtn" class="w-full magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs py-3.5 rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-transform shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> CALCULATE MATCH COMPATIBILITY
+            </button>
+            
+          </div>
+        </div>
+
+        <!-- Right Side: Results (Hidden until Analyzed) -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+          <div id="resultPanel" class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-6 items-center text-center hidden">
+            
+            <!-- Circular Indicator -->
+            <div class="relative w-36 h-36 flex items-center justify-center">
+              <svg class="absolute inset-0 transform -rotate-90 w-full h-full" viewBox="0 0 100 100">
+                <defs>
+                  <linearGradient id="cyan-purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00F0FF" />
+                    <stop offset="100%" stop-color="#7C3AED" />
+                  </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="40" class="circle-bg" />
+                <circle id="scoreProgress" cx="50" cy="50" r="40" class="circle-progress" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="z-10 flex flex-col items-center">
+                <span id="scoreText" class="text-3xl font-outfit font-extrabold text-white">0%</span>
+                <span class="text-[9px] font-mono text-slate-500 uppercase tracking-wider">ATS Score</span>
+              </div>
+            </div>
+
+            <!-- Status Rating Badge -->
+            <div id="ratingBadge" class="px-3 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase border border-white/5">
+              Awaiting Audit
+            </div>
+
+            <!-- Summary Report -->
+            <div class="w-full text-left border-t border-white/5 pt-4">
+              <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-2">EVALUATION METRICS</span>
+              <div class="flex flex-col gap-2.5 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Total Keywords Matched:</span>
+                  <span id="matchCount" class="font-bold text-white">0 / 0</span>
+                </div>
+                <div class="flex flex-col gap-1 border-t border-white/5 pt-2">
+                  <span class="text-slate-400 text-[10px] font-mono">CRITICAL ADVISORY:</span>
+                  <p id="atsAdvisory" class="text-[11px] text-slate-400 leading-relaxed italic">
+                    Paste content and hit compute to evaluate pipeline readiness.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Keyword Analysis Details (Hidden until Analyzed) -->
+      <div id="keywordDetailPanel" class="glass-panel p-8 rounded-2xl border border-white/5 flex flex-col gap-6 hidden">
+        <div class="border-b border-white/5 pb-4">
+          <h3 class="text-lg font-outfit font-bold text-white">ATS Keywords Analysis</h3>
+          <p class="text-xs text-slate-400">Review matching elements and identify priority words missing from your resume profile.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Matched Keywords Box -->
+          <div class="flex flex-col gap-3">
+            <span class="text-[10px] font-mono text-emerald-400 tracking-widest uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check"></i> MATCHED KEYWORDS (<span id="matchedListCount">0</span>)
+            </span>
+            <div id="matchedKeywords" class="flex flex-wrap gap-2 min-h-[80px] p-4 bg-slate-950/20 border border-emerald-950/30 rounded-xl">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Missing Keywords Box -->
+          <div class="flex flex-col gap-3">
+            <span class="text-[10px] font-mono text-orange-400 tracking-widest uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-triangle-exclamation"></i> MISSING DESIRED KEYWORDS (<span id="missingListCount">0</span>)
+            </span>
+            <div id="missingKeywords" class="flex flex-wrap gap-2 min-h-[80px] p-4 bg-slate-950/20 border border-orange-950/30 rounded-xl">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+      <div class="flex flex-col gap-2">
+        <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+        <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+      </div>
+      <div class="flex flex-col items-center md:items-end gap-3">
+        <div class="flex gap-6 text-sm font-mono">
+          <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+          <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+          <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+        </div>
+        <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ATS Analysis Javascript -->
+  <script>
+    // General technical terms to index
+    const TECH_DICTIONARY = new Set([
+      'javascript', 'python', 'java', 'typescript', 'rust', 'golang', 'c++', 'html', 'css', 'react', 'nextjs', 
+      'vue', 'angular', 'node', 'nodejs', 'express', 'nestjs', 'django', 'flask', 'fastapi', 'spring', 
+      'mysql', 'postgresql', 'mongodb', 'redis', 'elasticsearch', 'sqlite', 'mariadb', 'dynamodb', 'firebase', 
+      'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'jenkins', 'git', 'github', 'gitlab', 'ci/cd', 'devops', 
+      'graphql', 'rest', 'api', 'apis', 'microservices', 'kubernetes', 'serverless', 'lambda', 'terraform', 
+      'automation', 'selenium', 'puppeteer', 'playwright', 'testing', 'jest', 'cypress', 'mocha', 'chai', 
+      'linux', 'nginx', 'apache', 'agile', 'scrum', 'jira', 'confluence', 'tailwindcss', 'bootstrap', 'sass', 
+      'machine learning', 'deep learning', 'nlp', 'ai', 'data science', 'analytics', 'tableau', 'powerbi', 
+      'cloud', 'backend', 'frontend', 'full-stack', 'fullstack', 'database', 'design', 'architecture', 'manager', 
+      'lead', 'senior', 'developer', 'engineer', 'architect', 'security', 'saas', 'crm', 'wordpress', 'shopify'
+    ]);
+
+    const STOP_WORDS = new Set([
+      'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'arent', 'as', 
+      'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'cant', 'cannot', 
+      'could', 'couldnt', 'did', 'didnt', 'do', 'does', 'doesnt', 'doing', 'dont', 'down', 'during', 'each', 
+      'few', 'for', 'from', 'further', 'had', 'hadnt', 'has', 'hasnt', 'have', 'havent', 'having', 'he', 'hed', 
+      'hell', 'hes', 'her', 'here', 'heres', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'hows', 'i', 
+      'id', 'ill', 'im', 'ive', 'if', 'in', 'into', 'is', 'isnt', 'it', 'its', 'itself', 'lets', 'me', 'more', 
+      'most', 'mustnt', 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 
+      'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', 'shant', 'she', 'shed', 'shell', 
+      'shes', 'should', 'shouldnt', 'so', 'some', 'such', 'than', 'that', 'thats', 'the', 'their', 'theirs', 
+      'them', 'themselves', 'then', 'there', 'theres', 'these', 'they', 'theyd', 'theyll', 'theyre', 'theyve', 
+      'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', 'wasnt', 'we', 'wed', 
+      'well', 'were', 'weve', 'werent', 'what', 'whats', 'when', 'whens', 'where', 'wheres', 'which', 'while', 
+      'who', 'whos', 'whom', 'why', 'whys', 'with', 'wont', 'would', 'wouldnt', 'you', 'youd', 'youll', 'youre', 
+      'youve', 'your', 'yours', 'yourself', 'yourselves'
+    ]);
+
+    // Drag-and-drop file readers
+    function setupDragAndDrop(dropZoneId, textareaId) {
+      const dropZone = document.getElementById(dropZoneId);
+      const textarea = document.getElementById(textareaId);
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-cyberCyan/60', 'bg-cyberCyan/5');
+      });
+
+      dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-cyberCyan/60', 'bg-cyberCyan/5');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-cyberCyan/60', 'bg-cyberCyan/5');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          if (file.type === "text/plain" || file.name.endsWith('.txt')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              textarea.value = event.target.result;
+            };
+            reader.readAsText(file);
+          } else {
+            alert("Currently only plain text (.txt) files are supported directly. Please copy & paste contents for other formats.");
+          }
+        }
+      });
+    }
+
+    setupDragAndDrop('resumeDropZone', 'resumeText');
+    setupDragAndDrop('jobDropZone', 'jobText');
+
+    // Analyzer logic
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const resumeText = document.getElementById('resumeText').value.trim();
+      const jobText = document.getElementById('jobText').value.trim();
+
+      if (!resumeText || !jobText) {
+        alert("Please provide both your Resume and the Job Description to calculate the match.");
+        return;
+      }
+
+      // Tokenization helper
+      function extractKeywords(text) {
+        // Lowercase and split by non-word characters
+        const words = text.toLowerCase()
+          .replace(/[^\w\s\-\/\.]/g, ' ') // keep dots, slashes, hyphens
+          .split(/[\s,]+/);
+
+        const keywords = new Set();
+        words.forEach(word => {
+          // clean up trailing/leading dots
+          const cleanWord = word.trim().replace(/^\.+|\.+$/g, '');
+          if (cleanWord.length > 1 && !STOP_WORDS.has(cleanWord)) {
+            // Index technical keyword if found in tech dictionary, or general significant nouns
+            if (TECH_DICTIONARY.has(cleanWord) || isSignificantWord(cleanWord)) {
+              keywords.add(cleanWord);
+            }
+          }
+        });
+        return keywords;
+      }
+
+      function isSignificantWord(word) {
+        // Words with length > 4 that are not common English stopwords or verbs
+        return word.length > 4 && !/^(about|their|there|would|could|should|every|which|under|these)$/.test(word);
+      }
+
+      const resumeKeywords = extractKeywords(resumeText);
+      const jobKeywords = extractKeywords(jobText);
+
+      if (jobKeywords.size === 0) {
+        alert("No clear keywords identified in the Job Description. Please add more specific skills or text.");
+        return;
+      }
+
+      // Compute matching
+      const matched = [];
+      const missing = [];
+
+      jobKeywords.forEach(kw => {
+        if (resumeKeywords.has(kw)) {
+          matched.push(kw);
+        } else {
+          missing.push(kw);
+        }
+      });
+
+      const score = Math.round((matched.length / jobKeywords.size) * 100);
+
+      // Render Results
+      document.getElementById('resultPanel').classList.remove('hidden');
+      document.getElementById('keywordDetailPanel').classList.remove('hidden');
+
+      // Update circular indicator
+      document.getElementById('scoreText').textContent = `${score}%`;
+      const circle = document.getElementById('scoreProgress');
+      const radius = circle.r.baseVal.value;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (score / 100) * circumference;
+      circle.style.strokeDashoffset = offset;
+
+      // Update Badge & Advisory
+      const ratingBadge = document.getElementById('ratingBadge');
+      const advisory = document.getElementById('atsAdvisory');
+      
+      ratingBadge.className = "px-3 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase border";
+
+      if (score >= 80) {
+        ratingBadge.textContent = "EXCELLENT MATCH";
+        ratingBadge.classList.add('border-emerald-500/30', 'bg-emerald-500/10', 'text-emerald-400');
+        advisory.textContent = "Your profile is fully optimized. The keyword match is excellent and has a high probability of passing through automated ATS parsing checks.";
+      } else if (score >= 50) {
+        ratingBadge.textContent = "MODERATE MATCH";
+        ratingBadge.classList.add('border-cyan-500/30', 'bg-cyan-500/10', 'text-cyberCyan');
+        advisory.textContent = "Good base foundation. However, to maximize ranking results, review the missing keywords column and integrate relevant skills you possess into your resume details.";
+      } else {
+        ratingBadge.textContent = "LOW COMPATIBILITY";
+        ratingBadge.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-400');
+        advisory.textContent = "High risk of rejection. Major core keywords and framework requirements are missing in your resume. Strongly advise adjusting your profile copy to match the requirements.";
+      }
+
+      document.getElementById('matchCount').textContent = `${matched.length} / ${jobKeywords.size}`;
+
+      // Populate Badge Lists
+      const matchedContainer = document.getElementById('matchedKeywords');
+      const missingContainer = document.getElementById('missingKeywords');
+      
+      document.getElementById('matchedListCount').textContent = matched.length;
+      document.getElementById('missingListCount').textContent = missing.length;
+
+      matchedContainer.innerHTML = matched.length > 0 
+        ? matched.sort().map(kw => `<span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded text-[10px] font-mono hover:border-emerald-400/40 transition-colors cursor-default">${kw}</span>`).join('')
+        : `<span class="text-slate-600 text-[11px] italic font-mono">No keywords matched yet.</span>`;
+
+      missingContainer.innerHTML = missing.length > 0 
+        ? missing.sort().map(kw => `<span class="bg-orange-500/10 border border-orange-500/20 text-orange-400 px-2.5 py-1 rounded text-[10px] font-mono hover:border-orange-400/40 transition-colors cursor-default">${kw}</span>`).join('')
+        : `<span class="text-slate-600 text-[11px] italic font-mono">No missing keywords! Excellent!</span>`;
+    });
+  </script>
+</body>
+</html>

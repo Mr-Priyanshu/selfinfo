@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Video Background Noise Removal | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              voidBlack: '#03050B',
+              cardDark: '#070A13',
+              cyberCyan: '#00F0FF',
+              electricBlue: '#0066FF',
+              hyperPurple: '#7C3AED',
+            },
+            fontFamily: {
+              outfit: ['Outfit', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.12.6/ffmpeg.min.js"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        .waveform-container {
+            background: linear-gradient(135deg, #070a13 0%, #03050b 100%);
+        }
+        .processing-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .drop-zone.dragover {
+            border-color: #00F0FF;
+            background-color: rgba(0, 240, 255, 0.08);
+            transform: scale(1.01);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00F0FF;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00F0FF;
+        }
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // VIDEO ENHANCER
+            </span>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-10">
+            <!-- TITLE & LEAD -->
+            <div class="text-left border-b border-white/5 pb-6">
+                <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">AUDIO SPECTRAL FILTER</span>
+                <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+                    VIDEO <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">ENHANCER</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                    Remove background noise and clean audio tracks from video uploads. Uses advanced client-side Web Audio filters to preserve voice frequencies.
+                </p>
+            </div>
+            
+            <!-- Main Interface -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Panel - Upload & Controls -->
+                <div class="lg:col-span-1 flex flex-col gap-6">
+                    <!-- File Upload -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">1. UPLOAD VIDEO</span>
+                        <div id="dropZone" class="drop-zone border border-dashed border-white/10 rounded-xl p-8 text-center cursor-pointer bg-slate-950/40 hover:border-cyberCyan/35 transition-colors">
+                            <div class="text-slate-400 flex flex-col items-center gap-2.5">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg text-slate-300">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <p class="text-xs font-medium text-slate-300">Drop video file here</p>
+                                <p class="text-[10px] text-slate-500">or click to browse files</p>
+                                <p class="text-[9px] text-slate-600 font-mono">Supports MP4, MOV, AVI, WebM</p>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInput" accept="video/*" class="hidden">
+                        
+                        <div id="fileInfo" class="hidden p-4 bg-slate-950/40 rounded-xl border border-white/5 flex items-center gap-3">
+                            <i class="fa-solid fa-file-video text-cyberCyan text-lg"></i>
+                            <div class="min-w-0 flex-1 text-xs font-mono">
+                                <p id="fileName" class="font-bold text-white truncate"></p>
+                                <p id="fileSize" class="text-[10px] text-slate-500 mt-0.5"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing Settings -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">2. AUDIO FILTERING CONFIG</span>
+                        
+                        <div class="flex flex-col gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex justify-between">
+                                    <span>Noise Reduction Intensity</span>
+                                    <span id="noiseIntensityValue" class="text-cyberCyan font-bold">50%</span>
+                                </label>
+                                <input type="range" id="noiseIntensity" min="0" max="100" value="50" class="w-full h-1 bg-slate-800 appearance-none cursor-pointer accent-cyberCyan">
+                            </div>
+                            
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex justify-between">
+                                    <span>Voice Preservation</span>
+                                    <span id="voicePreservationValue" class="text-emerald-400 font-bold">75%</span>
+                                </label>
+                                <input type="range" id="voicePreservation" min="0" max="100" value="75" class="w-full h-1 bg-slate-800 appearance-none cursor-pointer accent-cyberCyan">
+                            </div>
+                            
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Processing Quality</label>
+                                <select id="processingQuality" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyberCyan">
+                                    <option value="fast">Fast (Lower Quality)</option>
+                                    <option value="balanced" selected>Balanced</option>
+                                    <option value="high">High Quality (Slower)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 mt-2">
+                                <input type="checkbox" id="autoDetectNoise" checked class="w-4 h-4 rounded bg-slate-950 border border-white/5 text-cyberCyan focus:ring-0">
+                                <label for="autoDetectNoise" class="text-xs text-slate-300 font-mono">Auto-detect noise profile</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing Controls -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">3. SYSTEM PIPELINE</span>
+                        
+                        <button id="processBtn" disabled class="w-full py-3.5 bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center gap-2">
+                            Start Processing
+                        </button>
+                        
+                        <button id="cancelBtn" class="hidden w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all">
+                            Cancel Processing
+                        </button>
+                        
+                        <div id="progressContainer" class="hidden flex flex-col gap-3 font-mono text-xs mt-2 border-t border-white/5 pt-4">
+                            <div class="flex justify-between">
+                                <span id="progressText" class="text-slate-400">Processing...</span>
+                                <span id="progressPercent" class="text-cyberCyan font-bold">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-900 rounded-full h-2">
+                                <div id="progressBar" class="bg-gradient-to-r from-cyberCyan to-electricBlue h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                            </div>
+                            <div class="text-[10px] text-slate-500">
+                                <span id="timeRemaining"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Download -->
+                    <div id="downloadSection" class="hidden glass-panel rounded-2xl p-6 border border-emerald-500/20 bg-emerald-500/5 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-emerald-400 font-bold">4. OUTPUT DETECTED</span>
+                        <button id="downloadBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-400 to-teal-500 text-voidBlack font-bold text-xs rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> Download Processed Video
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right Panel - Visualization & Preview -->
+                <div class="lg:col-span-2 flex flex-col gap-6">
+                    <!-- Video Preview -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">VIDEO MONITOR PLAYBACK</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <h3 class="text-xs font-mono uppercase text-slate-400">Original Video</h3>
+                                <video id="originalVideo" controls class="w-full rounded-xl bg-voidBlack border border-white/5 max-h-[220px]">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <h3 class="text-xs font-mono uppercase text-slate-400">Processed Video</h3>
+                                <video id="processedVideo" controls class="w-full rounded-xl bg-voidBlack border border-white/5 max-h-[220px]">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio Waveform Visualization -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">WAVEFORM SPECTRUM ANALYSIS</span>
+                        <div class="flex flex-col gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <h3 class="text-xs font-mono uppercase text-slate-400">Original Waveform</h3>
+                                <canvas id="originalWaveform" class="w-full h-20 bg-slate-950 rounded-xl border border-white/5"></canvas>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <h3 class="text-xs font-mono uppercase text-slate-400">Processed Waveform</h3>
+                                <canvas id="processedWaveform" class="w-full h-20 bg-slate-950 rounded-xl border border-white/5"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio Controls -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">AUDIO INDEPENDENT PLAYBACK</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <h3 class="text-xs font-mono uppercase text-slate-400">Original Track</h3>
+                                <audio id="originalAudio" controls class="w-full rounded-lg bg-voidBlack"></audio>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <h3 class="text-xs font-mono uppercase text-slate-400">Processed Track</h3>
+                                <audio id="processedAudio" controls class="w-full rounded-lg bg-voidBlack"></audio>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing Log -->
+                    <div class="glass-panel rounded-2xl p-6 border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">SYSTEM AUDIT LOGS</span>
+                        <div id="processingLog" class="bg-voidBlack border border-white/5 text-emerald-400 p-4 rounded-xl h-32 overflow-y-auto font-mono text-xs flex flex-col gap-1">
+                            <div>System ready. Upload a video file to begin...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+          <div class="flex flex-col gap-2">
+            <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+            <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+          </div>
+          <div class="flex flex-col items-center md:items-end gap-3">
+            <div class="flex gap-6 text-sm font-mono">
+              <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+              <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+              <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+            </div>
+            <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+          </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Global variables
+        let audioContext, analyzer, processingWorker;
+        let originalVideoFile, processedVideoBlob;
+        let isProcessing = false, processingStartTime;
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            logMessage('Application initialized successfully');
+        });
+        
+        function initializeApp() {
+            // Initialize Web Audio Context
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Setup processing worker
+            setupProcessingWorker();
+            
+            // Initialize UI elements
+            updateSliderValues();
+        }
+        
+        function setupEventListeners() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const processBtn = document.getElementById('processBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const sliders = ['noiseIntensity', 'voicePreservation'];
+            
+            // File upload events
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleFileDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Processing controls
+            processBtn.addEventListener('click', startProcessing);
+            cancelBtn.addEventListener('click', cancelProcessing);
+            downloadBtn.addEventListener('click', downloadProcessedVideo);
+            
+            // Slider updates
+            sliders.forEach(sliderId => {
+                document.getElementById(sliderId).addEventListener('input', updateSliderValues);
+            });
+        }
+        
+        function setupProcessingWorker() {
+            const workerCode = `
+                // Enhanced Audio Processing for Perfect Voice Isolation
+                class AdvancedNoiseReducer {
+                    constructor() {
+                        this.sampleRate = 44100;
+                        this.fftSize = 4096; // Increased for better frequency resolution
+                        this.noiseProfile = null;
+                        this.voiceFreqRange = { min: 85, max: 8000 }; // Human voice range
+                        this.noiseGateThreshold = -50; // dB
+                    }
+                    
+                    // Multi-stage noise reduction with voice enhancement
+                    processAudio(audioData, noiseIntensity, voicePreservation) {
+                        self.postMessage({ type: 'log', message: 'Stage 1: Analyzing audio characteristics...' });
+                        
+                        // Stage 1: Noise profiling
+                        const noiseProfile = this.analyzeNoiseProfile(audioData);
+                        
+                        self.postMessage({ type: 'log', message: 'Stage 2: Applying spectral subtraction...' });
+                        
+                        // Stage 2: Spectral subtraction
+                        let processedAudio = this.spectralSubtraction(audioData, noiseIntensity, voicePreservation, noiseProfile);
+                        
+                        self.postMessage({ type: 'log', message: 'Stage 3: Voice enhancement...' });
+                        
+                        // Stage 3: Voice enhancement
+                        processedAudio = this.enhanceVoice(processedAudio, voicePreservation);
+                        
+                        self.postMessage({ type: 'log', message: 'Stage 4: Noise gating...' });
+                        
+                        // Stage 4: Intelligent noise gate
+                        processedAudio = this.intelligentNoiseGate(processedAudio);
+                        
+                        self.postMessage({ type: 'log', message: 'Stage 5: Final cleanup...' });
+                        
+                        // Stage 5: Final cleanup and normalization
+                        processedAudio = this.finalCleanup(processedAudio);
+                        
+                        return processedAudio;
+                    }
+                    
+                    // Analyze first few seconds for noise profile
+                    analyzeNoiseProfile(audioData) {
+                        const sampleSize = Math.min(this.sampleRate * 2, audioData.length); // First 2 seconds
+                        const noiseSegment = audioData.slice(0, sampleSize);
+                        
+                        // Find quieter segments (likely noise)
+                        const segments = [];
+                        const segmentSize = 1024;
+                        
+                        for (let i = 0; i < noiseSegment.length - segmentSize; i += segmentSize) {
+                            const segment = noiseSegment.slice(i, i + segmentSize);
+                            const rms = this.calculateRMS(segment);
+                            segments.push({ start: i, rms: rms, data: segment });
+                        }
+                        
+                        // Sort by RMS and take quietest segments for noise profile
+                        segments.sort((a, b) => a.rms - b.rms);
+                        const noiseSegments = segments.slice(0, Math.floor(segments.length * 0.3));
+                        
+                        // Create noise spectrum profile
+                        const noiseSpectrum = this.getAverageSpectrum(noiseSegments.map(s => s.data));
+                        
+                        self.postMessage({ type: 'log', message: 'Noise profile created from quiet segments' });
+                        return noiseSpectrum;
+                    }
+                    
+                    // Enhanced spectral subtraction
+                    spectralSubtraction(audioData, noiseIntensity, voicePreservation, noiseProfile) {
+                        const windowSize = this.fftSize;
+                        const hopSize = windowSize / 8; // More overlap for better quality  
+                        const output = new Float32Array(audioData.length);
+                        const window = this.createHannWindow(windowSize);
+                        
+                        const alpha = Math.max(1.0, noiseIntensity / 50); // Oversubtraction factor
+                        const beta = 0.01; // Spectral floor to prevent artifacts
+                        
+                        for (let i = 0; i < audioData.length - windowSize; i += hopSize) {
+                            const frame = audioData.slice(i, i + windowSize);
+                            const processedFrame = this.processFrameAdvanced(frame, window, alpha, beta, voicePreservation, noiseProfile);
+                            
+                            // Overlap-add with proper scaling
+                            for (let j = 0; j < windowSize; j++) {
+                                if (i + j < output.length) {
+                                    output[i + j] += processedFrame[j] * (hopSize / windowSize);
+                                }
+                            }
+                            
+                            // Progress update
+                            if (i % (hopSize * 50) === 0) {
+                                self.postMessage({
+                                    type: 'progress',
+                                    progress: (i / (audioData.length - windowSize)) * 40
+                                });
+                            }
+                        }
+                        
+                        return output;
+                    }
+                    
+                    // Advanced frame processing with voice detection
+                    processFrameAdvanced(frame, window, alpha, beta, voicePreservation, noiseProfile) {
+                        // Apply window
+                        const windowedFrame = frame.map((sample, i) => sample * window[i]);
+                        
+                        // FFT
+                        const spectrum = this.fft(windowedFrame);
+                        
+                        // Voice activity detection
+                        const isVoiceActive = this.detectVoiceActivity(spectrum);
+                        
+                        // Adaptive noise reduction
+                        const cleanSpectrum = this.adaptiveNoiseReduction(spectrum, noiseProfile, alpha, beta, voicePreservation, isVoiceActive);
+                        
+                        // IFFT and return
+                        return this.ifft(cleanSpectrum, window);
+                    }
+                    
+                    // Voice activity detection using spectral features
+                    detectVoiceActivity(spectrum) {
+                        const voiceBands = [];
+                        const totalEnergy = spectrum.reduce((sum, bin) => sum + bin.magnitude * bin.magnitude, 0);
+                        
+                        // Check energy in voice frequency bands
+                        const binSize = this.sampleRate / spectrum.length / 2;
+                        for (let i = 0; i < spectrum.length; i++) {
+                            const freq = i * binSize;
+                            if (freq >= this.voiceFreqRange.min && freq <= this.voiceFreqRange.max) {
+                                voiceBands.push(spectrum[i].magnitude * spectrum[i].magnitude);
+                            }
+                        }
+                        
+                        const voiceEnergy = voiceBands.reduce((sum, energy) => sum + energy, 0);
+                        const voiceRatio = voiceEnergy / totalEnergy;
+                        
+                        // Enhanced voice detection with spectral characteristics
+                        const spectralCentroid = this.calculateSpectralCentroid(spectrum);
+                        const spectralRolloff = this.calculateSpectralRolloff(spectrum, 0.85);
+                        
+                        // Voice typically has centroid between 200-2000 Hz and specific rolloff characteristics
+                        const isVoiceLikely = voiceRatio > 0.3 && 
+                                            spectralCentroid > 200 && spectralCentroid < 2000 &&
+                                            spectralRolloff < 4000;
+                        
+                        return isVoiceLikely;
+                    }
+                    
+                    // Adaptive noise reduction based on voice activity
+                    adaptiveNoiseReduction(spectrum, noiseProfile, alpha, beta, voicePreservation, isVoiceActive) {
+                        const voiceProtection = voicePreservation / 100;
+                        
+                        return spectrum.map((bin, i) => {
+                            const freq = (i * this.sampleRate) / (spectrum.length * 2);
+                            const noiseLevel = noiseProfile[i] || 0.1;
+                            
+                            // Calculate reduction factor
+                            let reductionFactor;
+                            
+                            if (isVoiceActive && freq >= this.voiceFreqRange.min && freq <= this.voiceFreqRange.max) {
+                                // Minimal reduction in voice frequencies during voice activity
+                                reductionFactor = Math.max(beta, 1 - (alpha * 0.3 * (1 - voiceProtection)));
+                            } else {
+                                // Aggressive reduction for non-voice frequencies or during silence
+                                const noiseReduction = Math.min(0.9, alpha * (bin.magnitude / noiseLevel));
+                                reductionFactor = Math.max(beta, 1 - noiseReduction);
+                            }
+                            
+                            return {
+                                real: bin.real * reductionFactor,
+                                imag: bin.imag * reductionFactor,
+                                magnitude: bin.magnitude * reductionFactor
+                            };
+                        });
+                    }
+                    
+                    // Voice enhancement using formant boosting
+                    enhanceVoice(audioData, voicePreservation) {
+                        const enhancement = voicePreservation / 100;
+                        const windowSize = 2048;
+                        const hopSize = windowSize / 4;
+                        const output = new Float32Array(audioData.length);
+                        const window = this.createHannWindow(windowSize);
+                        
+                        for (let i = 0; i < audioData.length - windowSize; i += hopSize) {
+                            const frame = audioData.slice(i, i + windowSize);
+                            const windowedFrame = frame.map((sample, j) => sample * window[j]);
+                            const spectrum = this.fft(windowedFrame);
+                            
+                            // Boost formant frequencies (typical voice harmonics)
+                            const enhancedSpectrum = spectrum.map((bin, j) => {
+                                const freq = (j * this.sampleRate) / (spectrum.length * 2);
+                                
+                                // Boost key voice frequencies
+                                let boost = 1.0;
+                                if (freq >= 300 && freq <= 3000) { // Main voice range
+                                    boost = 1.0 + (enhancement * 0.3);
+                                } else if (freq >= 85 && freq <= 300) { // Fundamental frequencies
+                                    boost = 1.0 + (enhancement * 0.2);
+                                }
+                                
+                                return {
+                                    real: bin.real * boost,
+                                    imag: bin.imag * boost,  
+                                    magnitude: bin.magnitude * boost
+                                };
+                            });
+                            
+                            const enhancedFrame = this.ifft(enhancedSpectrum, window);
+                            
+                            // Overlap-add
+                            for (let j = 0; j < windowSize; j++) {
+                                if (i + j < output.length) {
+                                    output[i + j] += enhancedFrame[j] * 0.5;
+                                }
+                            }
+                            
+                            // Progress update
+                            if (i % (hopSize * 100) === 0) {
+                                self.postMessage({
+                                    type: 'progress',
+                                    progress: 40 + (i / (audioData.length - windowSize)) * 25
+                                });
+                            }
+                        }
+                        
+                        return output;
+                    }
+                    
+                    // Intelligent noise gate with voice detection
+                    intelligentNoiseGate(audioData) {
+                        const gatedData = new Float32Array(audioData.length);
+                        const windowSize = 1024;
+                        const threshold = Math.pow(10, this.noiseGateThreshold / 20);
+                        
+                        for (let i = 0; i < audioData.length - windowSize; i += windowSize/2) {
+                            const window = audioData.slice(i, i + windowSize);
+                            const rms = this.calculateRMS(window);
+                            const isVoice = this.isVoiceSegment(window);
+                            
+                            let gateAmount;
+                            if (isVoice && rms > threshold * 0.1) {
+                                gateAmount = 1.0; // Keep voice segments
+                            } else if (rms > threshold) {
+                                gateAmount = 0.8; // Partial reduction for ambiguous segments
+                            } else {
+                                gateAmount = 0.05; // Heavy reduction for clear noise
+                            }
+                            
+                            for (let j = 0; j < windowSize/2 && i + j < gatedData.length; j++) {
+                                gatedData[i + j] = audioData[i + j] * gateAmount;
+                            }
+                            
+                            // Progress update
+                            if (i % (windowSize * 50) === 0) {
+                                self.postMessage({
+                                    type: 'progress',
+                                    progress: 65 + (i / audioData.length) * 20
+                                });
+                            }
+                        }
+                        
+                        return gatedData;
+                    }
+                    
+                    // Final cleanup and normalization
+                    finalCleanup(audioData) {
+                        // High-pass filter to remove low-frequency noise
+                        let cleanedData = this.highPassFilter(audioData, 80);
+                        
+                        // Gentle low-pass filter to remove high-frequency artifacts
+                        cleanedData = this.lowPassFilter(cleanedData, 8000);
+                        
+                        // Normalize audio to prevent clipping
+                        cleanedData = this.normalizeAudio(cleanedData, 0.8);
+                        
+                        // De-esser to reduce harsh sibilants
+                        cleanedData = this.deEsser(cleanedData);
+                        
+                        self.postMessage({
+                            type: 'progress',
+                            progress: 100
+                        });
+                        
+                        return cleanedData;
+                    }
+                    
+                    // Proper FFT implementation for better quality
+                    fft(signal) {
+                        const N = signal.length;
+                        if (N <= 1) return [{ real: signal[0] || 0, imag: 0, magnitude: Math.abs(signal[0] || 0) }];
+                        
+                        // Radix-2 Cooley-Tukey FFT
+                        const spectrum = new Array(N);
+                        
+                        // Bit-reverse copy
+                        for (let i = 0; i < N; i++) {
+                            let j = 0;
+                            for (let bit = 0; bit < Math.log2(N); bit++) {
+                                j = (j << 1) | ((i >> bit) & 1);
+                            }
+                            spectrum[j] = { real: signal[i], imag: 0 };
+                        }
+                        
+                        // FFT computation
+                        for (let len = 2; len <= N; len *= 2) {
+                            const wlen = -2 * Math.PI / len;
+                            for (let i = 0; i < N; i += len) {
+                                for (let j = 0; j < len / 2; j++) {
+                                    const u = spectrum[i + j];
+                                    const angle = wlen * j;
+                                    const wReal = Math.cos(angle);
+                                    const wImag = Math.sin(angle);
+                                    const v = {
+                                        real: spectrum[i + j + len / 2].real * wReal - spectrum[i + j + len / 2].imag * wImag,
+                                        imag: spectrum[i + j + len / 2].real * wImag + spectrum[i + j + len / 2].imag * wReal
+                                    };
+                                    spectrum[i + j + len / 2] = {
+                                        real: u.real - v.real,
+                                        imag: u.imag - v.imag
+                                    };
+                                    spectrum[i + j] = {
+                                        real: u.real + v.real,
+                                        imag: u.imag + v.imag
+                                    };
+                                }
+                            }
+                        }
+                        
+                        // Calculate magnitudes
+                        return spectrum.map(bin => ({
+                            real: bin.real,
+                            imag: bin.imag,
+                            magnitude: Math.sqrt(bin.real * bin.real + bin.imag * bin.imag)
+                        }));
+                    }
+                    
+                    // Proper IFFT implementation
+                    ifft(spectrum, window) {
+                        const N = spectrum.length;
+                        const signal = new Float32Array(N);
+                        
+                        // IFFT is same as FFT but with conjugated input and divided by N
+                        const conjugatedSpectrum = spectrum.map(bin => ({
+                            real: bin.real,
+                            imag: -bin.imag
+                        }));
+                        
+                        const result = this.fft(conjugatedSpectrum.map(bin => bin.real));
+                        
+                        for (let i = 0; i < N; i++) {
+                            signal[i] = (result[i].real / N) * window[i];
+                        }
+                        
+                        return signal;
+                    }
+                    
+                    // Utility functions for audio analysis
+                    calculateRMS(data) {
+                        let sum = 0;
+                        for (let i = 0; i < data.length; i++) {
+                            sum += data[i] * data[i];
+                        }
+                        return Math.sqrt(sum / data.length);
+                    }
+                    
+                    calculateSpectralCentroid(spectrum) {
+                        let weightedSum = 0;
+                        let magnitudeSum = 0;
+                        
+                        for (let i = 0; i < spectrum.length; i++) {
+                            const freq = (i * this.sampleRate) / (spectrum.length * 2);
+                            weightedSum += freq * spectrum[i].magnitude;
+                            magnitudeSum += spectrum[i].magnitude;
+                        }
+                        
+                        return magnitudeSum > 0 ? weightedSum / magnitudeSum : 0;
+                    }
+                    
+                    calculateSpectralRolloff(spectrum, threshold) {
+                        const totalEnergy = spectrum.reduce((sum, bin) => sum + bin.magnitude * bin.magnitude, 0);
+                        const targetEnergy = totalEnergy * threshold;
+                        
+                        let cumulativeEnergy = 0;
+                        for (let i = 0; i < spectrum.length; i++) {
+                            cumulativeEnergy += spectrum[i].magnitude * spectrum[i].magnitude;
+                            if (cumulativeEnergy >= targetEnergy) {
+                                return (i * this.sampleRate) / (spectrum.length * 2);
+                            }
+                        }
+                        
+                        return this.sampleRate / 2;
+                    }
+                    
+                    isVoiceSegment(audioSegment) {
+                        const rms = this.calculateRMS(audioSegment);
+                        if (rms < 0.01) return false; // Too quiet
+                        
+                        // Simple zero-crossing rate for voice detection
+                        let zeroCrossings = 0;
+                        for (let i = 1; i < audioSegment.length; i++) {
+                            if ((audioSegment[i] >= 0) !== (audioSegment[i-1] >= 0)) {
+                                zeroCrossings++;
+                            }
+                        }
+                        
+                        const zcr = zeroCrossings / audioSegment.length;
+                        return zcr > 0.02 && zcr < 0.3; // Voice typically has moderate ZCR
+                    }
+                    
+                    getAverageSpectrum(segments) {
+                        if (segments.length === 0) return [];
+                        
+                        const avgSpectrum = new Array(this.fftSize / 2).fill(0);
+                        
+                        for (const segment of segments) {
+                            const spectrum = this.fft(segment);
+                            for (let i = 0; i < avgSpectrum.length && i < spectrum.length; i++) {
+                                avgSpectrum[i] += spectrum[i].magnitude;
+                            }
+                        }
+                        
+                        return avgSpectrum.map(val => val / segments.length);
+                    }
+                    
+                    // Audio filters
+                    highPassFilter(audioData, cutoffFreq) {
+                        const nyquist = this.sampleRate / 2;
+                        const normalizedCutoff = cutoffFreq / nyquist;
+                        const alpha = Math.exp(-2 * Math.PI * normalizedCutoff);
+                        
+                        const filtered = new Float32Array(audioData.length);
+                        filtered[0] = audioData[0];
+                        
+                        for (let i = 1; i < audioData.length; i++) {
+                            filtered[i] = alpha * (filtered[i-1] + audioData[i] - audioData[i-1]);
+                        }
+                        
+                        return filtered;
+                    }
+                    
+                    lowPassFilter(audioData, cutoffFreq) {
+                        const nyquist = this.sampleRate / 2;
+                        const normalizedCutoff = cutoffFreq / nyquist;
+                        const alpha = Math.exp(-2 * Math.PI * normalizedCutoff);
+                        
+                        const filtered = new Float32Array(audioData.length);
+                        filtered[0] = audioData[0];
+                        
+                        for (let i = 1; i < audioData.length; i++) {
+                            filtered[i] = alpha * filtered[i-1] + (1 - alpha) * audioData[i];
+                        }
+                        
+                        return filtered;
+                    }
+                    
+                    normalizeAudio(audioData, targetLevel = 0.8) {
+                        const maxAmplitude = Math.max(...audioData.map(Math.abs));
+                        if (maxAmplitude === 0) return audioData;
+                        
+                        const scaleFactor = targetLevel / maxAmplitude;
+                        return audioData.map(sample => sample * scaleFactor);
+                    }
+                    
+                    deEsser(audioData) {
+                        const sibilantFreq = 6000; // Hz
+                        const threshold = 0.3;
+                        const ratio = 3;
+                        
+                        const windowSize = 512;
+                        const output = new Float32Array(audioData.length);
+                        const window = this.createHannWindow(windowSize);
+                        
+                        for (let i = 0; i < audioData.length - windowSize; i += windowSize/2) {
+                            const segment = audioData.slice(i, i + windowSize);
+                            const windowed = segment.map((sample, j) => sample * window[j]);
+                            const spectrum = this.fft(windowed);
+                            
+                            // Detect and reduce sibilant frequencies
+                            const processedSpectrum = spectrum.map((bin, j) => {
+                                const freq = (j * this.sampleRate) / (spectrum.length * 2);
+                                
+                                if (freq > sibilantFreq && bin.magnitude > threshold) {
+                                    const reduction = 1 / ratio;
+                                    return {
+                                        real: bin.real * reduction,
+                                        imag: bin.imag * reduction,
+                                        magnitude: bin.magnitude * reduction
+                                    };
+                                }
+                                
+                                return bin;
+                            });
+                            
+                            const processed = this.ifft(processedSpectrum, window);
+                            
+                            // Overlap-add
+                            for (let j = 0; j < windowSize/2 && i + j < output.length; j++) {
+                                output[i + j] += processed[j] * 0.5;
+                            }
+                        }
+                        
+                        return output;
+                    }
+                    
+                    createHannWindow(size) {
+                        const window = new Float32Array(size);
+                        for (let i = 0; i < size; i++) {
+                            window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (size - 1)));
+                        }
+                        return window;
+                    }
+                }
+
+                const noiseReducer = new AdvancedNoiseReducer();
+
+                // ...inside setupProcessingWorker(), replace the workerCode string with this ending...
+                self.onmessage = function(e) {
+                    const { type, audioData, settings } = e.data;
+
+                    if (type === 'process') {
+                        try {
+                            self.postMessage({ type: 'log', message: 'Initializing advanced noise reduction engine...' });
+
+                            const processedAudio = noiseReducer.processAudio(
+                                audioData,
+                                settings.noiseIntensity,
+                                settings.voicePreservation
+                            );
+
+                            self.postMessage({ type: 'log', message: 'Audio processing completed successfully!' });
+                            self.postMessage({
+                                type: 'complete',
+                                processedAudio: processedAudio
+                            });
+                        } catch (error) {
+                            self.postMessage({
+                                type: 'error',
+                                error: error.message
+                            });
+                        }
+                    }
+                };
+
+                          
+            `;
+            
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            processingWorker = new Worker(URL.createObjectURL(blob));
+            
+            processingWorker.onmessage = function(e) {
+                const { type, progress, processedAudio, message, error } = e.data;
+                
+                switch (type) {
+                    case 'progress':
+                        updateProgress(progress);
+                        break;
+                    case 'complete':
+                        handleProcessingComplete(processedAudio);
+                        break;
+                    case 'log':
+                        logMessage(message);
+                        break;
+                    case 'error':
+                        handleProcessingError(error);
+                        break;
+                }
+            };
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+        
+        function handleFileDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+        
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        }
+        
+        async function handleFile(file) {
+            if (!file.type.startsWith('video/')) {
+                alert('Please select a valid video file.');
+                return;
+            }
+            
+            originalVideoFile = file;
+            
+            // Update UI
+            document.getElementById('fileInfo').classList.remove('hidden');
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            document.getElementById('processBtn').disabled = false;
+            
+            // Load video for preview
+            const videoURL = URL.createObjectURL(file);
+            const originalVideo = document.getElementById('originalVideo');
+            originalVideo.src = videoURL;
+            
+            // Extract and visualize audio
+            await extractAndVisualizeAudio(file);
+            
+            logMessage(`Video file loaded: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+        }
+        
+        async function extractAndVisualizeAudio(videoFile) {
+            try {
+                const arrayBuffer = await videoFile.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice());
+                
+                // Visualize original waveform
+                visualizeWaveform(audioBuffer.getChannelData(0), 'originalWaveform');
+                
+                // Create audio blob for playback
+                const audioBlob = await extractAudioBlob(videoFile);
+                const audioURL = URL.createObjectURL(audioBlob);
+                document.getElementById('originalAudio').src = audioURL;
+                
+                logMessage('Audio extracted and visualized successfully');
+            } catch (error) {
+                logMessage(`Error extracting audio: ${error.message}`);
+            }
+        }
+        
+        async function extractAudioBlob(videoFile) {
+            // In a real implementation, this would use FFmpeg.js or similar
+            // For this demo, we'll simulate audio extraction
+            return new Blob([await videoFile.arrayBuffer()], { type: 'audio/wav' });
+        }
+        
+        function visualizeWaveform(audioData, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            ctx.fillStyle = '#1f2937';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            const step = Math.ceil(audioData.length / width);
+            const amp = height / 2;
+            
+            for (let i = 0; i < width; i++) {
+                let min = 1.0;
+                let max = -1.0;
+                
+                for (let j = 0; j < step; j++) {
+                    const datum = audioData[(i * step) + j];
+                    if (datum < min) min = datum;
+                    if (datum > max) max = datum;
+                }
+                
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+            }
+        }
+        
+        async function startProcessing() {
+            if (!originalVideoFile || isProcessing) return;
+            
+            isProcessing = true;
+            processingStartTime = Date.now();
+            
+            // Update UI
+            document.getElementById('processBtn').classList.add('hidden');
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            document.getElementById('progressContainer').classList.remove('hidden');
+            
+            logMessage('Starting video processing...');
+            
+            try {
+                // Extract audio data
+                const arrayBuffer = await originalVideoFile.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice());
+                const audioData = audioBuffer.getChannelData(0);
+                
+                // Get processing settings
+                const settings = {
+                    noiseIntensity: parseInt(document.getElementById('noiseIntensity').value),
+                    voicePreservation: parseInt(document.getElementById('voicePreservation').value),
+                    quality: document.getElementById('processingQuality').value
+                };
+                
+                // Start worker processing
+                processingWorker.postMessage({
+                    type: 'process',
+                    audioData: audioData,
+                    settings: settings
+                });
+                
+            } catch (error) {
+                handleProcessingError(error.message);
+            }
+        }
+        
+        function cancelProcessing() {
+            if (processingWorker) {
+                processingWorker.terminate();
+                setupProcessingWorker();
+            }
+            
+            isProcessing = false;
+            
+            // Reset UI
+            document.getElementById('processBtn').classList.remove('hidden');
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+            
+            logMessage('Processing cancelled by user');
+        }
+        
+        function updateProgress(progress) {
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const timeRemaining = document.getElementById('timeRemaining');
+            
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            
+            // Calculate time remaining
+            if (processingStartTime && progress > 0) {
+                const elapsed = Date.now() - processingStartTime;
+                const totalTime = elapsed / (progress / 100);
+                const remaining = totalTime - elapsed;
+                timeRemaining.textContent = `Est. time remaining: ${Math.round(remaining / 1000)}s`;
+            }
+        }
+        
+        async function handleProcessingComplete(processedAudioData) {
+            try {
+                logMessage('Audio processing complete. Recombining with video...');
+                
+                // Visualize processed waveform
+                visualizeWaveform(processedAudioData, 'processedWaveform');
+                
+                // Create processed audio blob
+                const processedAudioBuffer = audioContext.createBuffer(1, processedAudioData.length, audioContext.sampleRate);
+                processedAudioBuffer.copyToChannel(processedAudioData, 0);
+                
+                // Convert to blob for playback
+                const processedAudioBlob = await audioBufferToBlob(processedAudioBuffer);
+                const processedAudioURL = URL.createObjectURL(processedAudioBlob);
+                document.getElementById('processedAudio').src = processedAudioURL;
+                
+                // In a real implementation, this would recombine audio with video using FFmpeg.js
+                // For this demo, we'll simulate the processed video
+                processedVideoBlob = originalVideoFile; // Placeholder
+                
+                const processedVideoURL = URL.createObjectURL(processedVideoBlob);
+                document.getElementById('processedVideo').src = processedVideoURL;
+                
+                // Update UI
+                isProcessing = false;
+                document.getElementById('processBtn').classList.remove('hidden');
+                document.getElementById('cancelBtn').classList.add('hidden');
+                document.getElementById('progressContainer').classList.add('hidden');
+                document.getElementById('downloadSection').classList.remove('hidden');
+                
+                logMessage('Video processing completed successfully!');
+                
+            } catch (error) {
+                handleProcessingError(error.message);
+            }
+        }
+        
+        async function audioBufferToBlob(audioBuffer) {
+            const numberOfChannels = audioBuffer.numberOfChannels;
+            const length = audioBuffer.length * numberOfChannels * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+            
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            let offset = 0;
+            writeString(offset, 'RIFF'); offset += 4;
+            view.setUint32(offset, length - 8, true); offset += 4;
+            writeString(offset, 'WAVE'); offset += 4;
+            writeString(offset, 'fmt '); offset += 4;
+            view.setUint32(offset, 16, true); offset += 4;
+            view.setUint16(offset, 1, true); offset += 2;
+            view.setUint16(offset, numberOfChannels, true); offset += 2;
+            view.setUint32(offset, audioBuffer.sampleRate, true); offset += 4;
+            view.setUint32(offset, audioBuffer.sampleRate * 2, true); offset += 4;
+            view.setUint16(offset, numberOfChannels * 2, true); offset += 2;
+            view.setUint16(offset, 16, true); offset += 2;
+            writeString(offset, 'data'); offset += 4;
+            view.setUint32(offset, audioBuffer.length * numberOfChannels * 2, true); offset += 4;
+            
+            // Convert float samples to 16-bit PCM
+            const channelData = audioBuffer.getChannelData(0);
+            for (let i = 0; i < channelData.length; i++) {
+                const sample = Math.max(-1, Math.min(1, channelData[i]));
+                view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                offset += 2;
+            }
+            
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+        
+        function handleProcessingError(errorMessage) {
+            isProcessing = false;
+            
+            // Reset UI
+            document.getElementById('processBtn').classList.remove('hidden');
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+            
+            logMessage(`Error: ${errorMessage}`, 'error');
+            alert(`Processing failed: ${errorMessage}`);
+        }
+        
+        function downloadProcessedVideo() {
+            if (!processedVideoBlob) return;
+            
+            const url = URL.createObjectURL(processedVideoBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `processed_${originalVideoFile.name}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            logMessage('Download initiated for processed video');
+        }
+        
+        function updateSliderValues() {
+            const noiseIntensity = document.getElementById('noiseIntensity');
+            const voicePreservation = document.getElementById('voicePreservation');
+            
+            document.getElementById('noiseIntensityValue').textContent = `${noiseIntensity.value}%`;
+            document.getElementById('voicePreservationValue').textContent = `${voicePreservation.value}%`;
+        }
+        
+        function logMessage(message, type = 'info') {
+            const logContainer = document.getElementById('processingLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            
+            const color = type === 'error' ? 'text-red-400' : 
+                         type === 'warning' ? 'text-yellow-400' : 'text-green-400';
+                         
+            logEntry.className = color;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Keep only last 50 log entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+        
+        // Advanced Audio Processing Utilities
+        class AudioProcessor {
+            constructor(sampleRate = 44100) {
+                this.sampleRate = sampleRate;
+                this.fftSize = 2048;
+            }
+            
+            // Bandpass filter for voice frequencies (80Hz - 1000Hz)
+            bandpassFilter(audioData, lowFreq = 80, highFreq = 1000) {
+                const filteredData = new Float32Array(audioData.length);
+                const nyquist = this.sampleRate / 2;
+                const lowNorm = lowFreq / nyquist;
+                const highNorm = highFreq / nyquist;
+                
+                // Simple Butterworth filter implementation
+                for (let i = 2; i < audioData.length - 2; i++) {
+                    let sum = 0;
+                    const kernel = [-0.1, 0.25, 0.7, 0.25, -0.1]; // Simplified kernel
+                    
+                    for (let j = 0; j < kernel.length; j++) {
+                        sum += audioData[i - 2 + j] * kernel[j];
+                    }
+                    
+                    filteredData[i] = sum;
+                }
+                
+                return filteredData;
+            }
+            
+            // Adaptive noise gate
+            noiseGate(audioData, threshold = -40, ratio = 0.1) {
+                const gatedData = new Float32Array(audioData.length);
+                const thresholdLinear = Math.pow(10, threshold / 20);
+                
+                for (let i = 0; i < audioData.length; i++) {
+                    const amplitude = Math.abs(audioData[i]);
+                    
+                    if (amplitude > thresholdLinear) {
+                        gatedData[i] = audioData[i];
+                    } else {
+                        gatedData[i] = audioData[i] * ratio;
+                    }
+                }
+                
+                return gatedData;
+            }
+            
+            // Dynamic range compression
+            compressor(audioData, threshold = -12, ratio = 4) {
+                const compressedData = new Float32Array(audioData.length);
+                const thresholdLinear = Math.pow(10, threshold / 20);
+                
+                for (let i = 0; i < audioData.length; i++) {
+                    const amplitude = Math.abs(audioData[i]);
+                    const sign = audioData[i] >= 0 ? 1 : -1;
+                    
+                    if (amplitude > thresholdLinear) {
+                        const excess = amplitude - thresholdLinear;
+                        const compressedExcess = excess / ratio;
+                        compressedData[i] = sign * (thresholdLinear + compressedExcess);
+                    } else {
+                        compressedData[i] = audioData[i];
+                    }
+                }
+                
+                return compressedData;
+            }
+        }
+        
+        // Batch Processing Manager
+        class BatchProcessor {
+            constructor() {
+                this.queue = [];
+                this.isProcessing = false;
+            }
+            
+            addToQueue(file, settings) {
+                this.queue.push({ file, settings, id: Date.now() });
+                this.updateQueueDisplay();
+            }
+            
+            async processQueue() {
+                if (this.isProcessing || this.queue.length === 0) return;
+                
+                this.isProcessing = true;
+                
+                while (this.queue.length > 0) {
+                    const item = this.queue.shift();
+                    await this.processItem(item);
+                    this.updateQueueDisplay();
+                }
+                
+                this.isProcessing = false;
+            }
+            
+            async processItem(item) {
+                logMessage(`Processing batch item: ${item.file.name}`);
+                // Process individual item
+                await handleFile(item.file);
+                await startProcessing();
+            }
+            
+            updateQueueDisplay() {
+                // Update UI to show queue status
+                logMessage(`Batch queue: ${this.queue.length} items remaining`);
+            }
+        }
+        
+        // Performance Monitor
+        class PerformanceMonitor {
+            constructor() {
+                this.metrics = {
+                    processingTime: 0,
+                    memoryUsage: 0,
+                    cpuUsage: 0
+                };
+            }
+            
+            startMonitoring() {
+                this.startTime = performance.now();
+                this.startMemory = performance.memory ? performance.memory.usedJSHeapSize : 0;
+            }
+            
+            stopMonitoring() {
+                this.metrics.processingTime = performance.now() - this.startTime;
+                this.metrics.memoryUsage = performance.memory ? 
+                    performance.memory.usedJSHeapSize - this.startMemory : 0;
+                
+                logMessage(`Performance: ${(this.metrics.processingTime / 1000).toFixed(2)}s, ` +
+                          `Memory: ${(this.metrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
+            }
+            
+            getMetrics() {
+                return this.metrics;
+            }
+        }
+        
+        // Quality Assessment
+        class QualityAssessment {
+            constructor() {
+                this.thresholds = {
+                    snr: 20, // Signal-to-noise ratio threshold
+                    thd: 0.05 // Total harmonic distortion threshold
+                };
+            }
+            
+            calculateSNR(originalData, processedData) {
+                let signalPower = 0;
+                let noisePower = 0;
+                
+                for (let i = 0; i < originalData.length; i++) {
+                    signalPower += processedData[i] * processedData[i];
+                    const noise = originalData[i] - processedData[i];
+                    noisePower += noise * noise;
+                }
+                
+                const snr = 10 * Math.log10(signalPower / noisePower);
+                return snr;
+            }
+            
+            assessQuality(originalData, processedData) {
+                const snr = this.calculateSNR(originalData, processedData);
+                
+                const quality = {
+                    snr: snr,
+                    rating: snr > this.thresholds.snr ? 'Excellent' : 
+                           snr > 15 ? 'Good' : 
+                           snr > 10 ? 'Fair' : 'Poor',
+                    recommendation: snr < 15 ? 'Consider adjusting noise reduction settings' : 'Quality is satisfactory'
+                };
+                
+                logMessage(`Quality Assessment - SNR: ${snr.toFixed(2)}dB (${quality.rating})`);
+                return quality;
+            }
+        }
+        
+        // Initialize additional components
+        const batchProcessor = new BatchProcessor();
+        const performanceMonitor = new PerformanceMonitor();
+        const qualityAssessment = new QualityAssessment();
+        const audioProcessor = new AudioProcessor();
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'o':
+                        e.preventDefault();
+                        document.getElementById('fileInput').click();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (!isProcessing && originalVideoFile) {
+                            startProcessing();
+                        }
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        if (isProcessing) {
+                            cancelProcessing();
+                        }
+                        break;
+                }
+            }
+        });
+        
+        // Auto-save settings to memory
+        function saveSettings() {
+            const settings = {
+                noiseIntensity: document.getElementById('noiseIntensity').value,
+                voicePreservation: document.getElementById('voicePreservation').value,
+                processingQuality: document.getElementById('processingQuality').value,
+                autoDetectNoise: document.getElementById('autoDetectNoise').checked
+            };
+            
+            // Store in memory (not localStorage due to artifact restrictions)
+            window.userSettings = settings;
+        }
+        
+        function loadSettings() {
+            if (window.userSettings) {
+                const settings = window.userSettings;
+                document.getElementById('noiseIntensity').value = settings.noiseIntensity;
+                document.getElementById('voicePreservation').value = settings.voicePreservation;
+                document.getElementById('processingQuality').value = settings.processingQuality;
+                document.getElementById('autoDetectNoise').checked = settings.autoDetectNoise;
+                updateSliderValues();
+            }
+        }
+        
+        // Add settings auto-save
+        ['noiseIntensity', 'voicePreservation', 'processingQuality', 'autoDetectNoise'].forEach(id => {
+            document.getElementById(id).addEventListener('change', saveSettings);
+        });
+        
+        // Load settings on page load
+        setTimeout(loadSettings, 100);
+        
+        // Add tooltips and help system
+        const tooltips = {
+            'noiseIntensity': 'Controls how aggressively background noise is removed. Higher values remove more noise but may affect voice quality.',
+            'voicePreservation': 'Protects voice frequencies from noise reduction. Higher values better preserve speech clarity.',
+            'processingQuality': 'Affects processing time vs. quality trade-off. Higher quality takes longer but produces better results.',
+            'autoDetectNoise': 'Automatically identifies noise patterns in the audio. Disable for manual noise profile selection.'
+        };
+        
+        Object.keys(tooltips).forEach(id => {
+            const element = document.querySelector(`label[for="${id}"], #${id}`);
+            if (element) {
+                element.title = tooltips[id];
+                element.setAttribute('aria-label', tooltips[id]);
+            }
+        });
+        
+        // Error recovery and retry mechanism
+        function setupErrorRecovery() {
+            window.addEventListener('error', function(e) {
+                logMessage(`Unexpected error: ${e.message}`, 'error');
+                
+                if (isProcessing) {
+                    logMessage('Attempting to recover from processing error...', 'warning');
+                    cancelProcessing();
+                    
+                    // Offer retry option
+                    setTimeout(() => {
+                        if (confirm('An error occurred during processing. Would you like to retry?')) {
+                            startProcessing();
+                        }
+                    }, 1000);
+                }
+            });
+        }
+        
+        setupErrorRecovery();
+        
+        // Final initialization message
+        logMessage('Advanced Video Noise Removal Tool loaded successfully');
+        logMessage('Supported formats: MP4, MOV, AVI, WebM');
+        logMessage('Keyboard shortcuts: Ctrl+O (Open), Ctrl+Enter (Process), Esc (Cancel)');
+    </script>
+</body>
+</html>

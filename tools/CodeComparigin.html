@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Comparison Tool | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              voidBlack: '#03050B',
+              cardDark: '#070A13',
+              cyberCyan: '#00F0FF',
+              electricBlue: '#0066FF',
+              hyperPurple: '#7C3AED',
+            },
+            fontFamily: {
+              outfit: ['Outfit', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        .code-font { font-family: 'Fira Code', monospace; }
+        .ui-font { font-family: 'Inter', sans-serif; }
+        .line-numbers {
+            counter-reset: line-number;
+            background: #070a13;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            line-height: 1.5;
+            color: #475569;
+            user-select: none;
+            min-width: 3rem;
+        }
+        .line-number::before {
+            counter-increment: line-number;
+            content: counter(line-number);
+            display: block;
+            text-align: right;
+        }
+        .diff-line {
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            background: #03050b;
+        }
+        .diff-line.added {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            border-left: 4px solid #10b981 !important;
+        }
+        .diff-line.removed {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            border-left: 4px solid #ef4444 !important;
+        }
+        .diff-line.modified {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border-left: 4px solid #f59e0b !important;
+        }
+        .diff-content {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #cbd5e1;
+        }
+        .merge-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .diff-line:hover .merge-btn {
+            opacity: 1;
+        }
+        .stats-card {
+            background: rgba(7, 10, 19, 0.65) !important;
+            border: 1px solid rgba(0, 240, 255, 0.15) !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05) !important;
+        }
+        .scroll-sync {
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .scroll-sync::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-sync::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // CODE AUDITOR
+            </span>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-8">
+            <!-- TITLE & LEAD -->
+            <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-white/5 pb-6">
+                <div>
+                    <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">CODE COMPARISON SYSTEM</span>
+                    <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none">
+                        DIFF <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">AUDITOR</span>
+                    </h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="themeToggle" class="hidden p-2 rounded-lg bg-slate-900 border border-white/5 hover:border-cyberCyan/35 transition-colors text-xs text-slate-400 font-mono">
+                        DARK ONLY
+                    </button>
+                    <button id="helpBtn" class="px-4 py-2 border border-slate-700 hover:border-cyberCyan text-white text-xs font-mono tracking-widest uppercase rounded-lg hover:bg-slate-900/40 transition-colors">
+                        <i class="fa-solid fa-circle-question mr-1"></i> Help
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div id="statsCard" class="stats-card glass-panel p-6 rounded-2xl border border-white/5 hidden">
+                <h3 class="text-xs font-mono text-cyberCyan uppercase tracking-widest mb-4">Comparison Output Metrics</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center p-3 bg-slate-950/20 rounded-xl border border-white/5">
+                        <div class="text-xl font-bold text-emerald-400 font-mono" id="additionsCount">0</div>
+                        <div class="text-[10px] font-mono text-slate-400 uppercase mt-1">Additions</div>
+                    </div>
+                    <div class="text-center p-3 bg-slate-950/20 rounded-xl border border-white/5">
+                        <div class="text-xl font-bold text-red-400 font-mono" id="deletionsCount">0</div>
+                        <div class="text-[10px] font-mono text-slate-400 uppercase mt-1">Deletions</div>
+                    </div>
+                    <div class="text-center p-3 bg-slate-950/20 rounded-xl border border-white/5">
+                        <div class="text-xl font-bold text-amber-400 font-mono" id="modificationsCount">0</div>
+                        <div class="text-[10px] font-mono text-slate-400 uppercase mt-1">Modifications</div>
+                    </div>
+                    <div class="text-center p-3 bg-slate-950/20 rounded-xl border border-white/5">
+                        <div class="text-xl font-bold text-slate-400 font-mono" id="unchangedCount">0</div>
+                        <div class="text-[10px] font-mono text-slate-400 uppercase mt-1">Unchanged</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3">
+                <button id="compareBtn" class="magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs px-6 py-2.5 rounded-lg hover:scale-[1.03] transition-transform">
+                    <span class="flex items-center gap-2">
+                        <span id="compareText">Find Differences</span>
+                        <span id="compareSpinner" class="w-3.5 h-3.5 border-2 border-voidBlack border-t-transparent rounded-full loading hidden"></span>
+                    </span>
+                </button>
+                <button id="mergeAllLeftBtn" class="px-4 py-2.5 border border-red-500/20 hover:border-red-500 bg-red-500/10 text-red-400 text-xs font-mono uppercase rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                    ← Merge All to Original
+                </button>
+                <button id="mergeAllRightBtn" class="px-4 py-2.5 border border-emerald-500/20 hover:border-emerald-500 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                    Merge All to Updated →
+                </button>
+                <button id="clearBtn" class="px-4 py-2.5 border border-slate-700 hover:border-cyberCyan text-white text-xs font-mono uppercase rounded-lg hover:bg-slate-900/40 transition-colors">
+                    Clear All
+                </button>
+                <button id="exportBtn" class="px-4 py-2.5 border border-slate-700 hover:border-cyberCyan text-white text-xs font-mono uppercase rounded-lg hover:bg-slate-900/40 transition-colors">
+                    Export Diff
+                </button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Original Code Panel -->
+                <div class="glass-panel rounded-2xl border border-red-500/10 bg-slate-950/20">
+                    <div class="px-5 py-4 border-b border-red-500/10 flex justify-between items-center bg-slate-950/40 rounded-t-2xl">
+                        <h2 class="text-xs font-mono uppercase tracking-widest text-red-400 font-bold">Original Code</h2>
+                        <div class="flex space-x-2">
+                            <input type="file" id="openOriginal" accept=".txt,.js,.py,.html,.css,.json,.md" class="hidden">
+                            <button onclick="document.getElementById('openOriginal').click()" class="px-2.5 py-1 border border-red-500/20 hover:border-red-400 text-red-400 text-[10px] font-mono uppercase rounded transition-colors bg-red-950/10">
+                                Open
+                            </button>
+                            <button id="saveOriginal" class="px-2.5 py-1 border border-red-500/20 hover:border-red-400 text-red-400 text-[10px] font-mono uppercase rounded transition-colors bg-red-950/10">
+                                Save
+                            </button>
+                            <button id="copyOriginal" class="px-2.5 py-1 border border-red-500/20 hover:border-red-400 text-red-400 text-[10px] font-mono uppercase rounded transition-colors bg-red-950/10">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <textarea id="originalCode" placeholder="Paste your original code here..." class="w-full h-96 p-4 bg-slate-950/40 border border-white/5 rounded-xl resize-none code-font text-xs text-slate-300 focus:outline-none focus:border-red-500 outline-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Updated Code Panel -->
+                <div class="glass-panel rounded-2xl border border-emerald-500/10 bg-slate-950/20">
+                    <div class="px-5 py-4 border-b border-emerald-500/10 flex justify-between items-center bg-slate-950/40 rounded-t-2xl">
+                        <h2 class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">Updated Code</h2>
+                        <div class="flex space-x-2">
+                            <input type="file" id="openUpdated" accept=".txt,.js,.py,.html,.css,.json,.md" class="hidden">
+                            <button onclick="document.getElementById('openUpdated').click()" class="px-2.5 py-1 border border-emerald-500/20 hover:border-emerald-400 text-emerald-400 text-[10px] font-mono uppercase rounded transition-colors bg-emerald-950/10">
+                                Open
+                            </button>
+                            <button id="saveUpdated" class="px-2.5 py-1 border border-emerald-500/20 hover:border-emerald-400 text-emerald-400 text-[10px] font-mono uppercase rounded transition-colors bg-emerald-950/10">
+                                Save
+                            </button>
+                            <button id="copyUpdated" class="px-2.5 py-1 border border-emerald-500/20 hover:border-emerald-400 text-emerald-400 text-[10px] font-mono uppercase rounded transition-colors bg-emerald-950/10">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <textarea id="updatedCode" placeholder="Paste your updated code here..." class="w-full h-96 p-4 bg-slate-950/40 border border-white/5 rounded-xl resize-none code-font text-xs text-slate-300 focus:outline-none focus:border-emerald-500 outline-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diff View -->
+            <div id="diffView" class="mt-6 hidden flex flex-col gap-4">
+                <h3 class="text-lg font-outfit font-bold text-white">Line Differences</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-panel rounded-2xl border border-white/5 bg-slate-950/20">
+                        <div class="bg-slate-950/40 px-5 py-3.5 border-b border-white/5 rounded-t-2xl">
+                            <h4 class="text-xs font-mono uppercase tracking-widest text-red-400 font-bold">Original</h4>
+                        </div>
+                        <div id="originalDiff" class="scroll-sync p-2"></div>
+                    </div>
+                    <div class="glass-panel rounded-2xl border border-white/5 bg-slate-950/20">
+                        <div class="bg-slate-950/40 px-5 py-3.5 border-b border-white/5 rounded-t-2xl">
+                            <h4 class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">Updated</h4>
+                        </div>
+                        <div id="updatedDiff" class="scroll-sync p-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="fixed inset-0 bg-voidBlack/80 backdrop-blur-md hidden items-center justify-center z-[100]">
+            <div class="glass-panel rounded-2xl border border-white/5 p-8 max-w-md mx-4 max-h-[90vh] overflow-y-auto flex flex-col gap-6">
+                <div>
+                    <h3 class="text-lg font-outfit font-bold text-white mb-1">How to Use</h3>
+                    <p class="text-xs text-slate-400">Read shortcuts and instructions for side-by-side comparison.</p>
+                </div>
+                <div class="space-y-4 text-xs text-slate-300">
+                    <p><strong>1. Add Code:</strong> Paste or load code into both panels.</p>
+                    <p><strong>2. Compare:</strong> Click "Find Differences" to analyze lines.</p>
+                    <p><strong>3. Merge:</strong> Hover over lines in the diff panel to merge individual lines.</p>
+                    <p><strong>4. Bulk Merge:</strong> Click "Merge All" to apply all differences.</p>
+                    
+                    <div class="border-t border-white/5 pt-3 mt-3">
+                        <span class="text-[10px] font-mono text-cyberCyan uppercase tracking-widest block mb-2">Keyboard Shortcuts</span>
+                        <ul class="list-none space-y-1.5 font-mono text-[11px] text-slate-400">
+                            <li><span class="text-white">Ctrl + D</span>: Find Differences</li>
+                            <li><span class="text-white">Ctrl + S</span>: Save Active Panel</li>
+                            <li><span class="text-white">Ctrl + C</span>: Copy Active Panel</li>
+                        </ul>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('helpModal').classList.add('hidden')" class="w-full magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs py-2.5 rounded-xl">
+                    Got it
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+            <div class="flex flex-col gap-2">
+                <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+                <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+            </div>
+            <div class="flex flex-col items-center md:items-end gap-3">
+                <div class="flex gap-6 text-sm font-mono">
+                    <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+                    <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+                    <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+                </div>
+                <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Global variables
+        let diffResults = [];
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        let comparisonTimeout = null;
+        let currentChunk = 0;
+        const CHUNK_SIZE = 100; // Process 100 lines at a time for large files
+        
+        // DOM elements
+        const elements = {
+            originalCode: document.getElementById('originalCode'),
+            updatedCode: document.getElementById('updatedCode'),
+            compareBtn: document.getElementById('compareBtn'),
+            compareText: document.getElementById('compareText'),
+            compareSpinner: document.getElementById('compareSpinner'),
+            statsCard: document.getElementById('statsCard'),
+            diffView: document.getElementById('diffView'),
+            originalDiff: document.getElementById('originalDiff'),
+            updatedDiff: document.getElementById('updatedDiff'),
+            themeToggle: document.getElementById('themeToggle'),
+            helpBtn: document.getElementById('helpBtn'),
+            helpModal: document.getElementById('helpModal'),
+            clearBtn: document.getElementById('clearBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            mergeAllLeftBtn: document.getElementById('mergeAllLeftBtn'),
+            mergeAllRightBtn: document.getElementById('mergeAllRightBtn'),
+            openOriginal: document.getElementById('openOriginal'),
+            openUpdated: document.getElementById('openUpdated'),
+            saveOriginal: document.getElementById('saveOriginal'),
+            saveUpdated: document.getElementById('saveUpdated'),
+            copyOriginal: document.getElementById('copyOriginal'),
+            copyUpdated: document.getElementById('copyUpdated')
+        };
+
+        // Initialize the application
+        function init() {
+            applyTheme();
+            loadFromStorage();
+            setupEventListeners();
+            setupAutoSave();
+            setupRealTimeComparison();
+            setupAdvancedOptions();
+            loadSampleCode();
+        }
+
+        // Load sample code for comparison demo
+        function loadSampleCode() {
+            elements.originalCode.value = `function calculateTotal(items) {
+    let total = 0;
+    for (let i = 0; i < items.length; i++) {
+        total += items[i].price;
+    }
+    return total;
+}
+
+const items = [
+    { name: 'Apple', price: 1.50 },
+    { name: 'Banana', price: 0.75 }
+];
+
+console.log('Total:', calculateTotal(items));`;
+
+            elements.updatedCode.value = `function calculateTotal(items) {
+    let total = 0;
+    for (const item of items) {
+        total += item.price * item.quantity;
+    }
+    return total;
+}
+
+const items = [
+    { name: 'Apple', price: 1.50, quantity: 2 },
+    { name: 'Banana', price: 0.75, quantity: 3 },
+    { name: 'Orange', price: 2.00, quantity: 1 }
+];
+
+console.log('Total cost:', calculateTotal(items));`;
+        }
+
+        // Theme management
+        function applyTheme() {
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            applyTheme();
+        }
+
+        // Auto-save functionality and real-time comparison
+        function setupAutoSave() {
+            const saveToStorage = () => {
+                localStorage.setItem('originalCode', elements.originalCode.value);
+                localStorage.setItem('updatedCode', elements.updatedCode.value);
+            };
+
+            elements.originalCode.addEventListener('input', saveToStorage);
+            elements.updatedCode.addEventListener('input', saveToStorage);
+        }
+        
+        // Setup real-time comparison with debounce
+        function setupRealTimeComparison() {
+            const debounceTime = 1000; // 1 second debounce
+            
+            const compareDebounced = () => {
+                clearTimeout(comparisonTimeout);
+                comparisonTimeout = setTimeout(() => {
+                    if (elements.originalCode.value.trim() && elements.updatedCode.value.trim()) {
+                        performComparison();
+                    }
+                }, debounceTime);
+            };
+            
+            elements.originalCode.addEventListener('input', compareDebounced);
+            elements.updatedCode.addEventListener('input', compareDebounced);
+        }
+
+        function loadFromStorage() {
+            const savedOriginal = localStorage.getItem('originalCode');
+            const savedUpdated = localStorage.getItem('updatedCode');
+            
+            if (savedOriginal) elements.originalCode.value = savedOriginal;
+            if (savedUpdated) elements.updatedCode.value = savedUpdated;
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            elements.compareBtn.addEventListener('click', performComparison);
+            elements.themeToggle.addEventListener('click', toggleTheme);
+            elements.helpBtn.addEventListener('click', () => elements.helpModal.classList.remove('hidden'));
+            elements.clearBtn.addEventListener('click', clearAll);
+            elements.exportBtn.addEventListener('click', exportDiff);
+            elements.mergeAllLeftBtn.addEventListener('click', () => mergeAll('left'));
+            elements.mergeAllRightBtn.addEventListener('click', () => mergeAll('right'));
+            
+            // File operations
+            elements.openOriginal.addEventListener('change', (e) => loadFile(e, 'original'));
+            elements.openUpdated.addEventListener('change', (e) => loadFile(e, 'updated'));
+            elements.saveOriginal.addEventListener('click', () => saveFile('original'));
+            elements.saveUpdated.addEventListener('click', () => saveFile('updated'));
+            elements.copyOriginal.addEventListener('click', () => copyToClipboard('original'));
+            elements.copyUpdated.addEventListener('click', () => copyToClipboard('updated'));
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+            
+            // Click outside modal to close
+            elements.helpModal.addEventListener('click', (e) => {
+                if (e.target === elements.helpModal) {
+                    elements.helpModal.classList.add('hidden');
+                }
+            });
+            
+            // Handle window resize for responsive layout
+            window.addEventListener('resize', () => {
+                if (elements.diffView && !elements.diffView.classList.contains('hidden')) {
+                    // Recalculate layout when window is resized
+                    setupScrollSync();
+                }
+            });
+        }
+
+        function handleKeyboardShortcuts(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'd':
+                        e.preventDefault();
+                        performComparison();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        if (document.activeElement === elements.originalCode) {
+                            saveFile('original');
+                        } else if (document.activeElement === elements.updatedCode) {
+                            saveFile('updated');
+                        }
+                        break;
+                }
+            }
+        }
+
+        // Enhanced diff algorithm with whitespace handling and better line matching
+        function computeDiff(original, updated, ignoreWhitespace = false) {
+            const originalLines = original.split('\n');
+            const updatedLines = updated.split('\n');
+            
+            // Pre-process lines if ignoring whitespace
+            const processLine = line => ignoreWhitespace ? line.trim() : line;
+            
+            // Create a map of line hashes to their indices for faster lookup
+            const createLineMap = (lines) => {
+                const map = new Map();
+                lines.forEach((line, index) => {
+                    const processed = processLine(line);
+                    if (!map.has(processed)) {
+                        map.set(processed, []);
+                    }
+                    map.get(processed).push(index);
+                });
+                return map;
+            };
+            
+            const originalMap = createLineMap(originalLines);
+            const updatedMap = createLineMap(updatedLines);
+            
+            // Find matching blocks
+            const matches = [];
+            let lastOriginal = -1;
+            let lastUpdated = -1;
+            let matchLength = 0;
+            
+            // First pass: find exact matches
+            for (let i = 0; i < originalLines.length; i++) {
+                const line = processLine(originalLines[i]);
+                if (updatedMap.has(line)) {
+                    const updatedIndices = updatedMap.get(line);
+                    for (const j of updatedIndices) {
+                        if (j > lastUpdated && (i === 0 || j === 0 || 
+                            (processLine(originalLines[i-1]) === processLine(updatedLines[j-1])))) {
+                            matchLength++;
+                            lastOriginal = i;
+                            lastUpdated = j;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Second pass: build the diff
+            const results = [];
+            let o = 0, u = 0;
+            
+            while (o < originalLines.length || u < updatedLines.length) {
+                const originalLine = o < originalLines.length ? originalLines[o] : '';
+                const updatedLine = u < updatedLines.length ? updatedLines[u] : '';
+                
+                if (o < originalLines.length && u < updatedLines.length && 
+                    processLine(originalLine) === processLine(updatedLine)) {
+                    // Lines match
+                    results.push({
+                        type: 'unchanged',
+                        originalLine,
+                        updatedLine,
+                        lineNumber: o + 1
+                    });
+                    o++;
+                    u++;
+                } else if (o < originalLines.length && 
+                          (u >= updatedLines.length || 
+                           !updatedMap.has(processLine(originalLine)) ||
+                           !updatedMap.get(processLine(originalLine)).some(idx => idx >= u))) {
+                    // Line removed
+                    results.push({
+                        type: 'removed',
+                        originalLine,
+                        updatedLine: '',
+                        lineNumber: o + 1
+                    });
+                    o++;
+                } else if (u < updatedLines.length && 
+                          (o >= originalLines.length || 
+                           !originalMap.has(processLine(updatedLine)) ||
+                           !originalMap.get(processLine(updatedLine)).some(idx => idx >= o))) {
+                    // Line added
+                    results.push({
+                        type: 'added',
+                        originalLine: '',
+                        updatedLine,
+                        lineNumber: u + 1
+                    });
+                    u++;
+                } else {
+                    // Modified line
+                    results.push({
+                        type: 'modified',
+                        originalLine,
+                        updatedLine,
+                        lineNumber: o + 1
+                    });
+                    o++;
+                    u++;
+                }
+            }
+            
+            return results;
+        }
+
+        // Perform comparison with advanced options
+        function performComparison() {
+            const originalText = elements.originalCode.value;
+            const updatedText = elements.updatedCode.value;
+            
+            if (!originalText.trim() && !updatedText.trim()) {
+                return;
+            }
+            
+            // Show loading state
+            elements.compareText.textContent = 'Comparing...';
+            elements.compareSpinner.classList.remove('hidden');
+            elements.compareBtn.disabled = true;
+            
+            // Get diff options
+            const ignoreWhitespace = document.getElementById('ignoreWhitespace')?.checked || false;
+            
+            // Use requestIdleCallback for better performance
+            if (window.requestIdleCallback) {
+                requestIdleCallback(() => {
+                    diffResults = computeDiff(originalText, updatedText, ignoreWhitespace);
+                    
+                    // Use setTimeout to allow UI to update
+                    setTimeout(() => {
+                        displayDiffChunked();
+                        updateStats();
+                        
+                        // Reset button state
+                        elements.compareText.textContent = 'Find Differences';
+                        elements.compareSpinner.classList.add('hidden');
+                        elements.compareBtn.disabled = false;
+                        
+                        // Enable merge buttons
+                        elements.mergeAllLeftBtn.disabled = false;
+                        elements.mergeAllRightBtn.disabled = false;
+                    }, 0);
+                }, { timeout: 2000 });
+            } else {
+                // Fallback for browsers without requestIdleCallback
+                setTimeout(() => {
+                    diffResults = computeDiff(originalText, updatedText, ignoreWhitespace);
+                    displayDiffChunked();
+                    updateStats();
+                    
+                    // Reset button state
+                    elements.compareText.textContent = 'Find Differences';
+                    elements.compareSpinner.classList.add('hidden');
+                    elements.compareBtn.disabled = false;
+                    
+                    // Enable merge buttons
+                    elements.mergeAllLeftBtn.disabled = false;
+                    elements.mergeAllRightBtn.disabled = false;
+                }, 0);
+            }
+        }
+
+        // Display diff results with chunked rendering for better performance
+        function displayDiffChunked() {
+            // Clear previous results
+            elements.originalDiff.innerHTML = '';
+            elements.updatedDiff.innerHTML = '';
+            
+            // Show the diff view
+            elements.diffView.classList.remove('hidden');
+            
+            // Process in chunks to keep the UI responsive
+            currentChunk = 0;
+            processNextChunk();
+        }
+        
+        function processNextChunk() {
+            const chunkSize = CHUNK_SIZE;
+            const start = currentChunk * chunkSize;
+            const end = Math.min(start + chunkSize, diffResults.length);
+            
+            // Process this chunk
+            for (let i = start; i < end; i++) {
+                const diff = diffResults[i];
+                const originalDiv = createDiffLine(diff, 'original', i);
+                const updatedDiv = createDiffLine(diff, 'updated', i);
+                
+                elements.originalDiff.appendChild(originalDiv);
+                elements.updatedDiff.appendChild(updatedDiv);
+                
+                // Add section headers for large files
+                if (diffResults.length > 50 && i % 50 === 0) {
+                    addSectionHeader(i + 1, Math.min(i + 50, diffResults.length));
+                }
+            }
+            
+            currentChunk++;
+            
+            // Setup scroll sync after first chunk
+            if (currentChunk === 1) {
+                setupScrollSync();
+            }
+            
+            // Process next chunk if there are more lines
+            if (end < diffResults.length) {
+                if (window.requestIdleCallback) {
+                    requestIdleCallback(processNextChunk, { timeout: 500 });
+                } else {
+                    setTimeout(processNextChunk, 0);
+                }
+            }
+        }
+        
+        function addSectionHeader(startLine, endLine) {
+            const header = document.createElement('div');
+            header.className = 'bg-gray-100 dark:bg-gray-800 text-center py-1 text-sm text-gray-600 dark:text-gray-400 font-medium sticky top-0 z-10';
+            header.textContent = `Lines ${startLine}-${endLine}`;
+            
+            const originalHeader = header.cloneNode(true);
+            const updatedHeader = header.cloneNode(true);
+            
+            elements.originalDiff.appendChild(originalHeader);
+            elements.updatedDiff.appendChild(updatedHeader);
+        }
+
+        function createDiffLine(diff, side, index) {
+            const div = document.createElement('div');
+            div.className = `diff-line ${diff.type}`;
+            
+            const lineNumber = document.createElement('div');
+            lineNumber.className = 'line-number';
+            lineNumber.textContent = diff.lineNumber;
+            
+            const content = document.createElement('div');
+            content.className = 'diff-content code-font';
+            content.textContent = side === 'original' ? diff.originalLine : diff.updatedLine;
+            
+            div.appendChild(lineNumber);
+            div.appendChild(content);
+            
+            // Add merge buttons for changed lines
+            if (diff.type !== 'unchanged') {
+                const mergeBtn = document.createElement('button');
+                mergeBtn.className = `merge-btn px-2 py-1 m-1 rounded text-xs font-medium transition-colors ${
+                    side === 'original' ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-red-500 hover:bg-red-600 text-white'
+                }`;
+                mergeBtn.textContent = side === 'original' ? '→' : '←';
+                mergeBtn.title = side === 'original' ? 'Merge to Updated' : 'Merge to Original';
+                mergeBtn.onclick = () => mergeLine(index, side === 'original' ? 'right' : 'left');
+                
+                div.appendChild(mergeBtn);
+            }
+            
+            return div;
+        }
+
+        // Merge operations
+        function mergeLine(lineIndex, direction) {
+            const diff = diffResults[lineIndex];
+            
+            if (direction === 'right') {
+                // Merge from original to updated
+                updateCodeAtLine(elements.updatedCode, diff.lineNumber - 1, diff.originalLine);
+            } else {
+                // Merge from updated to original
+                updateCodeAtLine(elements.originalCode, diff.lineNumber - 1, diff.updatedLine);
+            }
+            
+            // Refresh comparison
+            performComparison();
+        }
+
+        function mergeAll(direction) {
+            const changes = diffResults.filter(diff => diff.type !== 'unchanged');
+            
+            if (changes.length === 0) {
+                alert('No changes to merge!');
+                return;
+            }
+            
+            if (direction === 'left') {
+                // Merge all from updated to original
+                elements.originalCode.value = elements.updatedCode.value;
+            } else {
+                // Merge all from original to updated
+                elements.updatedCode.value = elements.originalCode.value;
+            }
+            
+            // Save to storage
+            localStorage.setItem('originalCode', elements.originalCode.value);
+            localStorage.setItem('updatedCode', elements.updatedCode.value);
+            
+            // Refresh comparison
+            performComparison();
+        }
+
+        function updateCodeAtLine(textarea, lineIndex, newContent) {
+            const lines = textarea.value.split('\n');
+            lines[lineIndex] = newContent;
+            textarea.value = lines.join('\n');
+            
+            // Save to storage
+            const type = textarea === elements.originalCode ? 'originalCode' : 'updatedCode';
+            localStorage.setItem(type, textarea.value);
+        }
+
+        // Stats update
+        function updateStats() {
+            const stats = {
+                additions: diffResults.filter(d => d.type === 'added').length,
+                deletions: diffResults.filter(d => d.type === 'removed').length,
+                modifications: diffResults.filter(d => d.type === 'modified').length,
+                unchanged: diffResults.filter(d => d.type === 'unchanged').length
+            };
+            
+            document.getElementById('additionsCount').textContent = stats.additions;
+            document.getElementById('deletionsCount').textContent = stats.deletions;
+            document.getElementById('modificationsCount').textContent = stats.modifications;
+            document.getElementById('unchangedCount').textContent = stats.unchanged;
+            
+            elements.statsCard.classList.remove('hidden');
+        }
+
+        // Enhanced scroll synchronization with smooth scrolling
+        function setupScrollSync() {
+            const originalScroll = elements.originalDiff;
+            const updatedScroll = elements.updatedDiff;
+            
+            let syncing = false;
+            let lastScrollTime = 0;
+            const SCROLL_DEBOUNCE = 50; // ms
+            
+            function syncScroll(source, target) {
+                const now = Date.now();
+                if (syncing || now - lastScrollTime < SCROLL_DEBOUNCE) {
+                    return;
+                }
+                
+                lastScrollTime = now;
+                syncing = true;
+                
+                // Calculate the percentage scrolled
+                const percentScrolled = source.scrollTop / (source.scrollHeight - source.clientHeight);
+                
+                // Apply the same percentage to the target
+                const targetScroll = percentScrolled * (target.scrollHeight - target.clientHeight);
+                
+                // Use smooth scrolling if available
+                if ('scrollBehavior' in document.documentElement.style) {
+                    target.scrollTo({
+                        top: targetScroll,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    target.scrollTop = targetScroll;
+                }
+                
+                // Reset syncing flag after a short delay
+                setTimeout(() => {
+                    syncing = false;
+                }, 10);
+            }
+            
+            // Add scroll event listeners
+            const syncOptions = { passive: true };
+            originalScroll.addEventListener('scroll', () => syncScroll(originalScroll, updatedScroll), syncOptions);
+            updatedScroll.addEventListener('scroll', () => syncScroll(updatedScroll, originalScroll), syncOptions);
+            
+            // Also sync when window is resized
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (!syncing) {
+                        syncScroll(originalScroll, updatedScroll);
+                        syncScroll(updatedScroll, originalScroll);
+                    }
+                }, 100);
+            });
+        }
+
+        // Clear all
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all code and reset the tool?')) {
+                // Clear text areas
+                elements.originalCode.value = '';
+                elements.updatedCode.value = '';
+                
+                // Reset UI elements
+                elements.diffView.classList.add('hidden');
+                elements.statsCard.classList.add('hidden');
+                elements.mergeAllLeftBtn.disabled = true;
+                elements.mergeAllRightBtn.disabled = true;
+                
+                // Clear storage
+                localStorage.removeItem('originalCode');
+                localStorage.removeItem('updatedCode');
+                
+                // Reset diff results
+                diffResults = [];
+                currentChunk = 0;
+                
+                // Clear any timeouts
+                if (comparisonTimeout) {
+                    clearTimeout(comparisonTimeout);
+                    comparisonTimeout = null;
+                }
+                
+                // Reset compare button state
+                elements.compareText.textContent = 'Find Differences';
+                elements.compareSpinner.classList.add('hidden');
+                elements.compareBtn.disabled = false;
+                
+                // Reset advanced options
+                const ignoreWhitespace = document.getElementById('ignoreWhitespace');
+                if (ignoreWhitespace) ignoreWhitespace.checked = false;
+                
+                // Load sample code again
+                loadSampleCode();
+            }
+        }
+
+        // Export diff
+        function exportDiff() {
+            if (diffResults.length === 0) {
+                alert('No differences to export! Please run a comparison first.');
+                return;
+            }
+            
+            const stats = {
+                additions: diffResults.filter(d => d.type === 'added').length,
+                deletions: diffResults.filter(d => d.type === 'removed').length,
+                modifications: diffResults.filter(d => d.type === 'modified').length,
+                unchanged: diffResults.filter(d => d.type === 'unchanged').length
+            };
+            
+            let report = `Code Comparison Report\n`;
+            report += `Generated: ${new Date().toLocaleString()}\n\n`;
+            report += `Statistics:\n`;
+            report += `- Additions: ${stats.additions}\n`;
+            report += `- Deletions: ${stats.deletions}\n`;
+            report += `- Modifications: ${stats.modifications}\n`;
+            report += `- Unchanged: ${stats.unchanged}\n\n`;
+            report += `Detailed Changes:\n`;
+            report += `${'='.repeat(50)}\n\n`;
+            
+            diffResults.forEach((diff, index) => {
+                if (diff.type !== 'unchanged') {
+                    report += `Line ${diff.lineNumber} (${diff.type.toUpperCase()}):\n`;
+                    if (diff.type === 'removed') {
+                        report += `- ${diff.originalLine}\n`;
+                    } else if (diff.type === 'modified') {
+                        report += `- ${diff.originalLine}\n`;
+                        report += `+ ${diff.updatedLine}\n`;
+                    }
+                    report += `\n`;
+                }
+            });
+            
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `code_diff_report_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Real-time difference highlighting
+        function setupRealTimeComparison() {
+            let timeout;
+            
+            function debounceComparison() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    if (elements.originalCode.value.trim() && elements.updatedCode.value.trim()) {
+                        performComparison();
+                    }
+                }, 1000);
+            }
+            
+            elements.originalCode.addEventListener('input', debounceComparison);
+            elements.updatedCode.addEventListener('input', debounceComparison);
+        }
+
+        // Advanced diff options
+        function setupAdvancedOptions() {
+            // Add ignore whitespace option
+            const ignoreWhitespace = document.createElement('label');
+            ignoreWhitespace.className = 'flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300';
+            ignoreWhitespace.innerHTML = `
+                <input type="checkbox" id="ignoreWhitespace" class="rounded">
+                <span>Ignore whitespace changes</span>
+            `;
+            
+            // Insert before compare button
+            const buttonContainer = elements.compareBtn.parentElement;
+            buttonContainer.insertBefore(ignoreWhitespace, elements.compareBtn);
+        }
+
+        // Enhanced diff algorithm with whitespace handling
+        function computeDiffAdvanced(original, updated, ignoreWhitespace = false) {
+            let originalLines = original.split('\n');
+            let updatedLines = updated.split('\n');
+            
+            if (ignoreWhitespace) {
+                originalLines = originalLines.map(line => line.trim());
+                updatedLines = updatedLines.map(line => line.trim());
+            }
+            
+            const maxLines = Math.max(originalLines.length, updatedLines.length);
+            const results = [];
+            
+            for (let i = 0; i < maxLines; i++) {
+                const originalLine = originalLines[i] || '';
+                const updatedLine = updatedLines[i] || '';
+                
+                if (originalLine === updatedLine) {
+                    results.push({
+                        type: 'unchanged',
+                        originalLine: original.split('\n')[i] || '',
+                        updatedLine: updated.split('\n')[i] || '',
+                        lineNumber: i + 1
+                    });
+                } else if (originalLine && !updatedLine) {
+                    results.push({
+                        type: 'removed',
+                        originalLine: original.split('\n')[i] || '',
+                        updatedLine: '',
+                        lineNumber: i + 1
+                    });
+                } else if (!originalLine && updatedLine) {
+                    results.push({
+                        type: 'added',
+                        originalLine: '',
+                        updatedLine: updated.split('\n')[i] || '',
+                        lineNumber: i + 1
+                    });
+                } else {
+                    results.push({
+                        type: 'modified',
+                        originalLine: original.split('\n')[i] || '',
+                        updatedLine: updated.split('\n')[i] || '',
+                        lineNumber: i + 1
+                    });
+                }
+            }
+            
+            return results;
+        }
+
+        // Collapsible unchanged sections
+        function createCollapsibleSection(unchangedLines, startLine, endLine) {
+            const section = document.createElement('div');
+            section.className = 'bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors';
+            
+            const header = document.createElement('div');
+            header.className = 'px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2';
+            header.innerHTML = `
+                <span class="chevron">▼</span>
+                <span>Lines ${startLine}-${endLine} (${unchangedLines.length} unchanged lines)</span>
+            `;
+            
+            const content = document.createElement('div');
+            content.className = 'content';
+            
+            unchangedLines.forEach(line => {
+                const lineDiv = createDiffLine(line, 'original', line.lineNumber - 1);
+                content.appendChild(lineDiv);
+            });
+            
+            section.appendChild(header);
+            section.appendChild(content);
+            
+            // Toggle functionality
+            header.addEventListener('click', () => {
+                const chevron = header.querySelector('.chevron');
+                const isCollapsed = content.style.display === 'none';
+                
+                if (isCollapsed) {
+                    content.style.display = 'block';
+                    chevron.textContent = '▼';
+                } else {
+                    content.style.display = 'none';
+                    chevron.textContent = '▶';
+                }
+            });
+            
+            return section;
+        }
+
+        // Enhanced performance for large files
+        function optimizeForLargeFiles() {
+            const CHUNK_SIZE = 100;
+            let currentChunk = 0;
+            
+            function processChunk() {
+                const start = currentChunk * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, diffResults.length);
+                
+                for (let i = start; i < end; i++) {
+                    const diff = diffResults[i];
+                    const originalDiv = createDiffLine(diff, 'original', i);
+                    const updatedDiv = createDiffLine(diff, 'updated', i);
+                    
+                    elements.originalDiff.appendChild(originalDiv);
+                    elements.updatedDiff.appendChild(updatedDiv);
+                }
+                
+                currentChunk++;
+                
+                if (end < diffResults.length) {
+                    requestAnimationFrame(processChunk);
+                } else {
+                    setupScrollSync();
+                }
+            }
+            
+            return processChunk;
+        }
+
+        // Enhanced initialization with new features
+        function initEnhanced() {
+            init();
+            setupRealTimeComparison();
+            setupAdvancedOptions();
+            
+            // Add sample code for demonstration
+            if (!elements.originalCode.value && !elements.updatedCode.value) {
+                loadSampleCode();
+            }
+        }
+
+        // Update performComparison to use advanced options
+        function performComparisonEnhanced() {
+            const originalText = elements.originalCode.value;
+            const updatedText = elements.updatedCode.value;
+            
+            if (!originalText.trim() && !updatedText.trim()) {
+                alert('Please add some code to compare!');
+                return;
+            }
+            
+            // Show loading state
+            elements.compareText.textContent = 'Comparing...';
+            elements.compareSpinner.classList.remove('hidden');
+            elements.compareBtn.disabled = true;
+            
+            // Check for ignore whitespace option
+            const ignoreWhitespace = document.getElementById('ignoreWhitespace')?.checked || false;
+            
+            // Use setTimeout to allow UI update
+            setTimeout(() => {
+                diffResults = computeDiffAdvanced(originalText, updatedText, ignoreWhitespace);
+                
+                // Clear previous results
+                elements.originalDiff.innerHTML = '';
+                elements.updatedDiff.innerHTML = '';
+                
+                // Use optimized rendering for large files
+                if (diffResults.length > 1000) {
+                    const processChunk = optimizeForLargeFiles();
+                    processChunk();
+                } else {
+                    displayDiff();
+                }
+                
+                updateStats();
+                
+                // Reset button state
+                elements.compareText.textContent = 'Find Differences';
+                elements.compareSpinner.classList.add('hidden');
+                elements.compareBtn.disabled = false;
+                
+                // Enable merge buttons
+                elements.mergeAllLeftBtn.disabled = false;
+                elements.mergeAllRightBtn.disabled = false;
+            }, 100);
+        }
+
+        // Replace original performComparison with enhanced version
+        function updateComparison() {
+            elements.compareBtn.removeEventListener('click', performComparison);
+            elements.compareBtn.addEventListener('click', performComparisonEnhanced);
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initEnhanced();
+            updateComparison();
+        });
+    </script>
+</body>
+</html>

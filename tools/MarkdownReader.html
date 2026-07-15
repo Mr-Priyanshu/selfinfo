@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Reader & Printer | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              voidBlack: '#03050B',
+              cardDark: '#070A13',
+              cyberCyan: '#00F0FF',
+              electricBlue: '#0066FF',
+              hyperPurple: '#7C3AED',
+            },
+            fontFamily: {
+              outfit: ['Outfit', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- External Parser & Sanitizer CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    
+    <!-- Code Highlight styles (for preview pane) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        /* Markdown Preview Styling (prose-like overrides) */
+        .markdown-body {
+            font-size: 1.05rem;
+            line-height: 1.75;
+        }
+        .markdown-body h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.3rem;
+            font-family: 'Outfit', sans-serif;
+        }
+        .markdown-body h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: #1e293b;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 0.2rem;
+            font-family: 'Outfit', sans-serif;
+        }
+        .markdown-body h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 1.2rem;
+            margin-bottom: 0.6rem;
+            color: #334155;
+            font-family: 'Outfit', sans-serif;
+        }
+        .markdown-body p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: #334155;
+        }
+        .markdown-body ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+        .markdown-body ol {
+            list-style-type: decimal;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+        .markdown-body li {
+            margin-bottom: 0.25rem;
+        }
+        .markdown-body blockquote {
+            border-left: 4px solid #7c3aed;
+            background-color: #f8fafc;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #475569;
+            border-radius: 0 8px 8px 0;
+        }
+        .markdown-body pre {
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+        .markdown-body code {
+            font-family: monospace;
+            font-size: 0.9em;
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: #b91c1c;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+        }
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .markdown-body th, .markdown-body td {
+            border: 1px solid #cbd5e1;
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+        }
+        .markdown-body th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 700;
+        }
+        .markdown-body tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .markdown-body a {
+            color: #0066ff;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .markdown-body a:hover {
+            color: #7c3aed;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            header, footer, #editor-panel, #title-section, .cyber-grid, .radial-glow, #print-action-bar {
+                display: none !important;
+            }
+            #preview-panel {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                color: black !important;
+            }
+            #preview-sheet {
+                max-height: none !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            #preview-content {
+                color: black !important;
+                background: white !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // MARKDOWN RENDERER
+            </span>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-8">
+            <!-- TITLE & LEAD -->
+            <div id="title-section" class="text-left border-b border-white/5 pb-6">
+                <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">DOCUMENT RENDERING TOOL</span>
+                <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+                    MARKDOWN <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">READER & PRINTER</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                    Paste markdown files to render them on a clean, professional print-ready page. Supports real-time preview compiles and direct document layout printing.
+                </p>
+            </div>
+
+            <!-- Workspace Columns -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                
+                <!-- Left Panel - Editor Input -->
+                <div id="editor-panel" class="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950/20 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">1. EDITOR INPUT (MARKDOWN)</span>
+                        <div class="flex gap-2">
+                            <button id="loadSampleBtn" class="text-[9px] font-mono uppercase bg-cyberCyan/10 hover:bg-cyberCyan/20 text-cyberCyan px-2.5 py-1 rounded border border-cyberCyan/20 transition-colors">
+                                Load Sample
+                            </button>
+                            <button id="clearBtn" class="text-[9px] font-mono uppercase bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1 rounded border border-red-500/20 transition-colors">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <textarea 
+                        id="markdownInput" 
+                        placeholder="Paste your markdown content here..." 
+                        class="w-full min-h-[650px] p-4 bg-slate-950/50 border border-white/5 rounded-xl text-sm text-slate-300 font-mono focus:outline-none focus:border-cyberCyan resize-y transition-colors leading-relaxed"
+                    ></textarea>
+                    
+                    <div class="flex justify-between items-center text-[10px] font-mono text-slate-500">
+                        <span>Characters: <span id="charCount" class="text-slate-300">0</span></span>
+                        <span>Words: <span id="wordCount" class="text-slate-300">0</span></span>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Preview / Page Print -->
+                <div id="preview-panel" class="w-full flex flex-col gap-4">
+                    
+                    <!-- ActionBar -->
+                    <div id="print-action-bar" class="glass-panel px-6 py-4 rounded-xl border border-white/5 bg-slate-950/20 flex items-center justify-between">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">2. DOCUMENT PREVIEW (PRINT-READY)</span>
+                        <button id="printBtn" class="magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs px-5 py-2 rounded-xl flex items-center gap-1.5 hover:scale-[1.02] transition-transform">
+                            <i class="fa-solid fa-print"></i> Print Document
+                        </button>
+                    </div>
+
+                    <!-- Rendered Document Page sheet (simulates physical white page) -->
+                    <div id="preview-sheet" class="bg-white p-8 md:p-12 shadow-2xl rounded-2xl border border-slate-200 max-h-[650px] overflow-y-auto text-slate-800 w-full transition-all">
+                        <div id="preview-content" class="markdown-body text-left">
+                            <!-- Compiled output goes here -->
+                            <div class="text-center text-slate-400 font-mono text-xs py-20">
+                                <i class="fa-regular fa-file-lines text-4xl block mb-3 text-slate-300"></i>
+                                Enter markdown in the editor to render
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+          <div class="flex flex-col gap-2">
+            <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+            <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+          </div>
+          <div class="flex flex-col items-center md:items-end gap-3">
+            <div class="flex gap-6 text-sm font-mono">
+              <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+              <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+              <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+            </div>
+            <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+          </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Configure marked options
+        marked.setOptions({
+            gfm: true,
+            breaks: true,
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            }
+        });
+
+        // DOM elements
+        const markdownInput = document.getElementById('markdownInput');
+        const previewContent = document.getElementById('preview-content');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadSampleBtn = document.getElementById('loadSampleBtn');
+        const printBtn = document.getElementById('printBtn');
+
+        // Compile Markdown function
+        function compileMarkdown() {
+            const rawVal = markdownInput.value;
+            
+            // Stats calculation
+            charCount.textContent = rawVal.length;
+            wordCount.textContent = rawVal.trim() === '' ? 0 : rawVal.trim().split(/\s+/).length;
+
+            if (rawVal.trim() === '') {
+                previewContent.innerHTML = `
+                    <div class="text-center text-slate-400 font-mono text-xs py-20">
+                        <i class="fa-regular fa-file-lines text-4xl block mb-3 text-slate-300"></i>
+                        Enter markdown in the editor to render
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                // Parse marked HTML
+                const dirtyHtml = marked.parse(rawVal);
+                // Sanitize HTML
+                const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+                previewContent.innerHTML = cleanHtml;
+            } catch (err) {
+                console.error(err);
+                previewContent.innerHTML = `<div class="text-red-500 font-mono p-4">Compilation Error: ${err.message}</div>`;
+            }
+        }
+
+        // Sample Markdown Template
+        const sampleMarkdown = `# Sample Markdown Document
+
+This is an interactive Markdown editor designed to render documents for printing. The **Preview Page** on the right side matches print page proportions and colors.
+
+## Features Checklist
+
+- [x] Split-screen layout
+- [x] Client-side compilation
+- [x] Print stylesheets configured
+- [x] Custom document typography
+
+---
+
+## Formatting Demonstrations
+
+### Code Block
+
+Here is a quick javascript code sample showing total pricing:
+
+\`\`\`javascript
+function calculateTotal(items) {
+    let total = 0;
+    for (const item of items) {
+        total += item.price * (item.quantity || 1);
+    }
+    return total;
+}
+\`\`\`
+
+### Data Matrix Table
+
+| Service / Feature | Support | Latency |
+| :--- | :---: | :---: |
+| Local Compilation | Offline | < 1ms |
+| External Requests | None | Secure |
+| PDF Layout Print | Native | Immediate |
+
+> **Print Notice:** Clicking the **Print Document** button uses css print media queries to clean the sheet, hiding sidebars and headers, and matching pure white formatting pages.
+
+Feel free to clean the editor or paste your own document!
+`;
+
+        // Event listeners
+        markdownInput.addEventListener('input', compileMarkdown);
+
+        clearBtn.addEventListener('click', () => {
+            markdownInput.value = '';
+            compileMarkdown();
+        });
+
+        loadSampleBtn.addEventListener('click', () => {
+            markdownInput.value = sampleMarkdown;
+            compileMarkdown();
+        });
+
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        // Initialize with sample on first load
+        document.addEventListener('DOMContentLoaded', () => {
+            markdownInput.value = sampleMarkdown;
+            compileMarkdown();
+        });
+    </script>
+</body>
+</html>

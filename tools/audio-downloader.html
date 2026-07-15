@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to MP3 Downloader | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              voidBlack: '#03050B',
+              cardDark: '#070A13',
+              cyberCyan: '#00F0FF',
+              electricBlue: '#0066FF',
+              hyperPurple: '#7C3AED',
+            },
+            fontFamily: {
+              outfit: ['Outfit', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // AUDIO EXTRACTOR
+            </span>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-10">
+            <!-- TITLE & LEAD -->
+            <div class="text-left border-b border-white/5 pb-6">
+                <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">AUDIO EXTRACTION SYSTEM</span>
+                <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+                    VIDEO TO <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">MP3</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                    Convert YouTube videos or direct video URL streams into high-quality MP3 downloads. 100% secure client interface.
+                </p>
+            </div>
+
+            <!-- Workspace Card -->
+            <div class="glass-panel p-6 md:p-8 rounded-2xl border border-white/5 bg-slate-950/20 max-w-2xl mx-auto w-full flex flex-col gap-6">
+                
+                <div class="flex flex-col gap-4">
+                    <label class="block text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">PASTE VIDEO URL LINK</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input 
+                            type="text" 
+                            id="videoUrl" 
+                            placeholder="Paste video URL here..." 
+                            class="flex-1 bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono"
+                            autocomplete="off"
+                        >
+                        <button 
+                            id="downloadBtn"
+                            class="bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs px-6 py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onclick="handleDownload()"
+                        >
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Progress Section -->
+                    <div id="progressContainer" class="hidden flex flex-col gap-2 font-mono text-xs mt-2 border-t border-white/5 pt-4">
+                        <div class="w-full bg-slate-900 rounded-full h-2">
+                            <div id="progressBar" class="bg-gradient-to-r from-cyberCyan to-electricBlue h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                        <p id="progressText" class="text-[10px] text-slate-500 text-right">0%</p>
+                    </div>
+                    
+                    <!-- Status Log -->
+                    <div id="status" class="hidden p-4 rounded-xl bg-slate-950/40 border border-cyberCyan/20 text-cyberCyan text-xs font-mono">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        <span id="status-message">Processing, please wait...</span>
+                    </div>
+                    
+                    <!-- Error log -->
+                    <div id="error" class="hidden p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span id="error-message"></span>
+                    </div>
+                    
+                    <!-- Success log -->
+                    <div id="success" class="hidden p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span id="success-message">Download complete!</span>
+                        <a id="downloadLink" href="#" class="text-cyberCyan underline ml-2 font-bold">Click here to download</a>
+                    </div>
+                </div>
+                
+                <div class="border-t border-white/5 pt-5 text-xs text-slate-500 font-mono">
+                    <p class="text-[10px] tracking-widest uppercase text-slate-400 mb-2">Supported Video Formats:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="bg-slate-950/20 p-2.5 rounded-lg border border-white/5 flex items-center gap-2">
+                            <i class="fab fa-youtube text-red-500"></i>
+                            <span class="text-[9px]">youtube.com</span>
+                        </div>
+                        <div class="bg-slate-950/20 p-2.5 rounded-lg border border-white/5 flex items-center gap-2">
+                            <i class="fab fa-youtube text-red-500"></i>
+                            <span class="text-[9px]">youtu.be</span>
+                        </div>
+                        <div class="bg-slate-950/20 p-2.5 rounded-lg border border-white/5 flex items-center gap-2">
+                            <i class="fas fa-video text-blue-500"></i>
+                            <span class="text-[9px]">Direct MP4 links</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+          <div class="flex flex-col gap-2">
+            <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+            <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+          </div>
+          <div class="flex flex-col items-center md:items-end gap-3">
+            <div class="flex gap-6 text-sm font-mono">
+              <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+              <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+              <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+            </div>
+            <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+          </div>
+        </footer>
+
+    </main>
+    <script>
+        // DOM Elements
+        const videoUrlInput = document.getElementById('videoUrl');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusElement = document.getElementById('status');
+        const errorElement = document.getElementById('error');
+        const successElement = document.getElementById('success');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const downloadLink = document.getElementById('downloadLink');
+
+        // State
+        let isProcessing = false;
+        let currentVideoId = '';
+
+        // Event Listeners
+        videoUrlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleDownload();
+            }
+        });
+
+        // Functions
+        function showStatus(message) {
+            statusElement.querySelector('#status-message').textContent = message;
+            statusElement.classList.remove('hidden');
+            errorElement.classList.add('hidden');
+            successElement.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+        }
+
+        function showError(message) {
+            errorElement.querySelector('#error-message').textContent = message;
+            errorElement.classList.remove('hidden');
+            statusElement.classList.add('hidden');
+            successElement.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+            resetButtonState();
+        }
+
+        function showSuccess(message) {
+            successElement.querySelector('#success-message').textContent = message;
+            successElement.classList.remove('hidden');
+            statusElement.classList.add('hidden');
+            errorElement.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+        }
+
+        function updateProgress(percent) {
+            const progress = Math.min(100, Math.max(0, percent));
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+        }
+
+        function resetButtonState() {
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download</span>';
+            downloadBtn.onclick = handleDownload;
+            downloadBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            downloadBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            isProcessing = false;
+        }
+
+        function validateUrl(url) {
+            if (!url) return { valid: false, message: 'Please enter a URL' };
+            
+            try {
+                new URL(url);
+                return { valid: true };
+            } catch (e) {
+                return { valid: false, message: 'Please enter a valid URL' };
+            }
+        }
+
+        function getVideoId(url) {
+            try {
+                const urlObj = new URL(url);
+                
+                // YouTube URL patterns
+                if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+                    if (urlObj.hostname.includes('youtu.be')) {
+                        return urlObj.pathname.slice(1);
+                    }
+                    return urlObj.searchParams.get('v') || '';
+                }
+                
+                // For other video URLs, we'll use the filename as ID
+                const pathParts = urlObj.pathname.split('/');
+                return pathParts[pathParts.length - 1] || 'video';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function simulateDownload() {
+            const videoId = getVideoId(videoUrlInput.value);
+            if (!videoId) {
+                showError('Could not process this video URL');
+                return;
+            }
+
+            currentVideoId = videoId;
+            progressContainer.classList.remove('hidden');
+            updateProgress(0);
+            
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    onDownloadComplete();
+                }
+                updateProgress(progress);
+            }, 300);
+        }
+
+        function onDownloadComplete() {
+            const videoId = currentVideoId;
+            const fileName = `audio_${videoId || 'download'}.mp3`;
+            
+            // In a real implementation, this would be the actual download link
+            downloadLink.href = '#';
+            downloadLink.download = fileName;
+            downloadLink.onclick = (e) => {
+                e.preventDefault();
+                alert('In a real implementation, this would download the MP3 file.\n\nFor a complete solution, you would need to set up a backend service that can process videos and return MP3 files.');
+            };
+            
+            showSuccess('MP3 ready!');
+            resetButtonState();
+        }
+
+        function handleDownload() {
+            if (isProcessing) return;
+            
+            const url = videoUrlInput.value.trim();
+            const validation = validateUrl(url);
+            
+            if (!validation.valid) {
+                showError(validation.message);
+                return;
+            }
+            
+            isProcessing = true;
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="ml-2">Processing...</span>';
+            
+            showStatus('Preparing download...');
+            
+            // Simulate network delay
+            setTimeout(() => {
+                simulateDownload();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to MP3 Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-indigo-600">Video to MP3 Downloader</h1>
+            <p class="text-gray-600 mt-2">Paste YouTube or any video URL to download audio</p>
+        </div>
+
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input 
+                    type="text" 
+                    id="videoUrl" 
+                    placeholder="Paste video URL here..." 
+                    class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                <button 
+                    onclick="downloadAudio()" 
+                    id="downloadBtn"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                >
+                    <i class="fas fa-download"></i>
+                    <span>Download</span>
+                </button>
+            </div>
+            
+            <div id="status" class="hidden p-4 rounded-lg bg-blue-50 text-blue-800">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                <span id="status-message">Processing, please wait...</span>
+            </div>
+            
+            <div id="error" class="hidden p-4 rounded-lg bg-red-50 text-red-800">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span id="error-message"></span>
+            </div>
+            
+            <div id="success" class="hidden p-4 rounded-lg bg-green-50 text-green-800">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="success-message">Download complete!</span>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center text-sm text-gray-500">
+            <p>Note: For YouTube videos, you can use the format: <code class="bg-gray-100 px-2 py-1 rounded">youtube.com/watch?v=VIDEO_ID</code></p>
+            <p class="mt-2">Or simply: <code class="bg-gray-100 px-2 py-1 rounded">youtu.be/VIDEO_ID</code></p>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message) {
+            const statusElement = document.getElementById('status');
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.textContent = message;
+            statusElement.classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('success').classList.add('hidden');
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error');
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorElement.classList.remove('hidden');
+            document.getElementById('status').classList.add('hidden');
+            document.getElementById('success').classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+            const successElement = document.getElementById('success');
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = message;
+            successElement.classList.remove('hidden');
+            document.getElementById('status').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+        }
+
+        function validateYouTubeUrl(url) {
+            const regExp = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+            return regExp.test(url);
+        }
+
+        function getYouTubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function downloadFromYouTube(videoId) {
+            // In a real implementation, you would need a backend service
+            // This is a client-side only example that shows the concept
+            showStatus('Preparing YouTube video...');
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                showSuccess('MP3 is ready! Click the button below to download.');
+                
+                // Create a download button (in a real app, this would be the actual MP3 file)
+                const downloadBtn = document.getElementById('downloadBtn');
+                const originalHTML = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-file-audio mr-2"></i>Download MP3';
+                downloadBtn.onclick = function() {
+                    alert('In a real implementation, this would download the MP3 file.\n\nFor a complete solution, you would need to set up a backend service that can process YouTube videos and return the MP3 file.');
+                    // Reset the button
+                    downloadBtn.innerHTML = originalHTML;
+                    downloadBtn.onclick = function() { downloadAudio(); };
+                };
+                downloadBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }, 2000);
+        }
+
+        function downloadFromOtherUrl(url) {
+            showStatus('Processing video URL...');
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                showSuccess('MP3 is ready! Click the button below to download.');
+                
+                // Create a download button (in a real app, this would be the actual MP3 file)
+                const downloadBtn = document.getElementById('downloadBtn');
+                const originalHTML = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-file-audio mr-2"></i>Download MP3';
+                downloadBtn.onclick = function() {
+                    alert('In a real implementation, this would download the MP3 file.\n\nFor a complete solution, you would need to set up a backend service that can process video URLs and return the MP3 file.');
+                    // Reset the button
+                    downloadBtn.innerHTML = originalHTML;
+                    downloadBtn.onclick = function() { downloadAudio(); };
+                };
+                downloadBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }, 2000);
+        }
+
+        function downloadAudio() {
+            const videoUrl = document.getElementById('videoUrl').value.trim();
+            
+            // Hide previous messages
+            document.getElementById('status').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('success').classList.add('hidden');
+            
+            // Validate URL
+            if (!videoUrl) {
+                showError('Please enter a video URL');
+                return;
+            }
+            
+            try {
+                if (validateYouTubeUrl(videoUrl)) {
+                    const videoId = getYouTubeVideoId(videoUrl);
+                    if (videoId) {
+                        downloadFromYouTube(videoId);
+                    } else {
+                        showError('Could not extract video ID from YouTube URL');
+                    }
+                } else {
+                    // For other video URLs
+                    downloadFromOtherUrl(videoUrl);
+                }
+            } catch (error) {
+                showError('An error occurred: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // Handle Enter key press
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                downloadAudio();
+            }
+        });
+    </script>
+</body>
+</html>

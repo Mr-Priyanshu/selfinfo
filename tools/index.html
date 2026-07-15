@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Metadata -->
+  <title>Developer Utility Dock | Priyanshu Garg</title>
+  <meta name="description" content="A curated suite of offline-first browser utilities for productivity, video enhancement, document management, and code auditing.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            voidBlack: '#03050B',
+            cardDark: '#070A13',
+            cyberCyan: '#00F0FF',
+            electricBlue: '#0066FF',
+            hyperPurple: '#7C3AED',
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom Stylesheet (Linked relatively) -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <style>
+    /* Specific overrides and additions for the tools page */
+    .tools-grid-card {
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .tools-grid-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      border-color: rgba(0, 240, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+    }
+    .tools-grid-card:hover .icon-box {
+      transform: scale(1.1) rotate(5deg);
+      background-color: rgba(0, 240, 255, 0.15);
+      border-color: rgba(0, 240, 255, 0.4);
+      color: #00F0FF;
+    }
+    .tools-grid-card:hover .arrow-icon {
+      transform: translate(4px, -4px);
+      color: #00F0FF;
+    }
+  </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter">
+
+  <!-- Grid overlay background for tech aesthetic -->
+  <div class="cyber-grid"></div>
+
+  <!-- Radial Glow Background Details -->
+  <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+  <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- MAIN SCROLL CONTAINER -->
+  <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+    
+    <!-- HEADER / NAVIGATION BACK LINK -->
+    <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+      <a href="../index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+        <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Portfolio
+      </a>
+      <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+        <span class="status-pulse"></span> SYSTEM: TOOLS DOCK
+      </span>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <div class="flex-grow flex flex-col gap-12">
+      <!-- TITLE & LEAD -->
+      <div class="text-left max-w-3xl">
+        <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">OFFLINE-FIRST UTILITIES</span>
+        <h1 class="text-4xl md:text-6xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+          DEVELOPER <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">TOOLS</span>
+        </h1>
+        <p class="text-sm md:text-base text-slate-400 leading-relaxed">
+          A secure, client-side repository of automated tools for file conversions, image editing, and performance optimizations. Zero data leaves your browser.
+        </p>
+      </div>
+
+      <!-- TOOLS GRID -->
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        
+        <!-- CARD 1: CODE COMPARISON -->
+        <a href="./CodeComparigin.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-code"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Code Comparison</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Compare code snippets side-by-side with live line diff highlighting.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Diffing</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Client-side</span>
+          </div>
+        </a>
+
+        <!-- CARD 2: IMAGE RESIZER -->
+        <a href="./ImageResizer.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-image"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Image Resizer</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Resize, crop, and compress images with target dimensions and quality.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Image Processing</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Resize</span>
+          </div>
+        </a>
+
+        <!-- CARD 3: MATCH SCORE -->
+        <a href="./Match Score.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-chart-simple"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Match Score</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Calculate match score and keyword analysis for resumes and job profiles.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Analysis</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Resume</span>
+          </div>
+        </a>
+
+        <!-- CARD 4: PDF SIZE REDUCER -->
+        <a href="./PDFSizeReducer.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-file-pdf"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">PDF Size Reducer</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Compress PDF files to custom target sizes with precision quality controls.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Compression</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">PDF</span>
+          </div>
+        </a>
+
+        <!-- CARD 5: VIDEO ENHANCER -->
+        <a href="./VideoInhence.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Video Enhancer</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Clean audio background noise and enhance speech clarity in video uploads.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Audio Filter</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Video</span>
+          </div>
+        </a>
+
+        <!-- CARD 6: VIDEO RESIZER -->
+        <a href="./VideoResizer.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-video"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Video Cropping</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Resize, crop, aspect ratio modify, and scale video content.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Editing</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Video</span>
+          </div>
+        </a>
+
+        <!-- CARD 7: VIDEO TO MP3 -->
+        <a href="./audio-downloader.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-file-audio"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Video to MP3</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Extract and download high-quality audio files from video files offline.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Audio Extract</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">MP3</span>
+          </div>
+        </a>
+
+        <!-- CARD 8: PDF MERGER -->
+        <a href="./pdfmerge.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-cubes"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">PDF Merger</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Combine multiple PDF documents into a single consolidated file.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Combine</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">PDF</span>
+          </div>
+        </a>
+
+        <!-- CARD 9: MARKDOWN READER & PRINTER -->
+        <a href="./MarkdownReader.html" class="tools-grid-card glass-panel rounded-2xl p-6 border border-white/5 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="icon-box w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 text-lg transition-all duration-300">
+                <i class="fa-solid fa-file-invoice"></i>
+              </div>
+              <i class="arrow-icon fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 transition-transform duration-300"></i>
+            </div>
+            <h3 class="text-lg font-outfit font-bold text-white mb-2">Markdown Reader</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Paste markdown text to preview on a white sheet and print directly.</p>
+          </div>
+          <div class="mt-4 flex gap-1.5 flex-wrap">
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Markdown</span>
+            <span class="bg-voidBlack/60 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 border border-white/5">Print-Ready</span>
+          </div>
+        </a>
+
+      </section>
+    </div>
+
+    <!-- SECTION 9: FOOTER -->
+    <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+      <div class="flex flex-col gap-2">
+        <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+        <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+      </div>
+      <div class="flex flex-col items-center md:items-end gap-3">
+        <div class="flex gap-6 text-sm font-mono">
+          <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+          <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+          <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+        </div>
+        <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+      </div>
+    </footer>
+
+  </main>
+
+</body>
+</html>

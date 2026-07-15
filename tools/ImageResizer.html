@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Image Resizer | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              voidBlack: '#03050B',
+              cardDark: '#070A13',
+              cyberCyan: '#00F0FF',
+              electricBlue: '#0066FF',
+              hyperPurple: '#7C3AED',
+            },
+            fontFamily: {
+              outfit: ['Outfit', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        .glow-cyan-hover:hover {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            background: rgba(0, 240, 255, 0.02);
+        }
+        .upload-area.dragover {
+            border-color: #00F0FF;
+            background: rgba(0, 240, 255, 0.08);
+            transform: scale(1.01);
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 5px;
+        }
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #070a13;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* Tooltip and slider overrides */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00F0FF;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00F0FF;
+        }
+    </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // IMAGE OPTIMIZER
+            </span>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-10">
+            <!-- TITLE & LEAD -->
+            <div class="text-left max-w-3xl border-b border-white/5 pb-6">
+                <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">IMAGE COMPRESSION LAB</span>
+                <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+                    IMAGE <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">RESIZER</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                    Optimize, scale, and crop images locally in your browser. Restrict output formats, target specific pixel dimensions, or specify target file sizes. 100% client side.
+                </p>
+            </div>
+
+            <!-- Workspace content -->
+            <div class="flex flex-col gap-8">
+                <!-- Upload Section -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-6">
+                    <div class="border-b border-white/5 pb-3">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">1. UPLOAD IMAGE</span>
+                    </div>
+                    <div class="upload-area rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 bg-slate-950/20" id="upload-area">
+                        <div class="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 text-xl">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-300 font-medium">Drag & drop your image here</p>
+                            <p class="text-[10px] text-slate-500 mt-1">or click to browse files</p>
+                        </div>
+                        <input type="file" id="file-input" accept="image/*">
+                    </div>
+
+                    <!-- Previews -->
+                    <div class="image-preview" id="image-preview">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <!-- Original preview box -->
+                            <div class="glass-panel p-5 rounded-xl border border-white/5 bg-slate-950/10 text-center flex flex-col gap-4">
+                                <h3 class="text-xs font-mono tracking-widest uppercase text-slate-400">Original Image</h3>
+                                <div class="w-full flex justify-center bg-voidBlack/40 rounded-lg p-2 border border-white/5 max-h-[300px] overflow-hidden">
+                                    <img id="original-preview" alt="Original" class="max-h-[280px] object-contain rounded-md">
+                                </div>
+                                <div class="p-3 bg-slate-950/40 rounded-lg border border-white/5 text-left text-xs flex flex-col gap-1.5 font-mono">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-500">Dimensions:</span>
+                                        <span id="original-dimensions" class="text-white">-</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-white/5 pt-1.5">
+                                        <span class="text-slate-500">File Size:</span>
+                                        <span id="original-size" class="text-white">-</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-white/5 pt-1.5">
+                                        <span class="text-slate-500">Format:</span>
+                                        <span id="original-format" class="text-white">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Optimized preview box -->
+                            <div class="glass-panel p-5 rounded-xl border border-white/5 bg-slate-950/10 text-center flex flex-col gap-4">
+                                <h3 class="text-xs font-mono tracking-widest uppercase text-slate-400">Optimized Preview</h3>
+                                <div class="w-full flex justify-center bg-voidBlack/40 rounded-lg p-2 border border-white/5 max-h-[300px] overflow-hidden">
+                                    <img id="optimized-preview" alt="Optimized" class="max-h-[280px] object-contain rounded-md">
+                                </div>
+                                <div class="p-3 bg-slate-950/40 rounded-lg border border-white/5 text-left text-xs flex flex-col gap-1.5 font-mono">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-500">New Dimensions:</span>
+                                        <span id="new-dimensions" class="text-white">-</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-white/5 pt-1.5">
+                                        <span class="text-slate-500">New Size:</span>
+                                        <span id="new-size" class="text-white">-</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-white/5 pt-1.5">
+                                        <span class="text-slate-500">Quality:</span>
+                                        <span id="current-quality" class="text-white">90%</span>
+                                    </div>
+                                </div>
+                                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-2.5 rounded-lg text-xs font-mono" id="size-reduction">
+                                    Size reduced by 0%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls Section -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-6" id="controls-section" style="display: none;">
+                    <div class="border-b border-white/5 pb-3">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-hyperPurple font-bold">2. RESIZE & OPTIMIZE CONTROLS</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Left Side: Sizes -->
+                        <div class="flex flex-col gap-5">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center">
+                                    Target Width (px) <span class="tooltip text-[9px] text-cyberCyan ml-1" data-tooltip="Set desired width in pixels">ℹ️</span>
+                                </label>
+                                <input type="number" id="target-width" min="1" max="10000" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center">
+                                    Target Height (px) <span class="tooltip text-[9px] text-cyberCyan ml-1" data-tooltip="Set desired height in pixels">ℹ️</span>
+                                </label>
+                                <input type="number" id="target-height" min="1" max="10000" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+
+                            <div class="flex items-center gap-2 mt-2">
+                                <input type="checkbox" id="maintain-aspect" checked class="w-4 h-4 rounded bg-slate-950 border border-white/5 text-cyberCyan focus:ring-0">
+                                <label for="maintain-aspect" class="text-xs text-slate-300 font-mono flex items-center">
+                                    Maintain aspect ratio <span class="tooltip text-[9px] text-cyberCyan ml-1" data-tooltip="Keep the original width-to-height ratio">ℹ️</span>
+                                </label>
+                            </div>
+
+                            <button class="w-full py-2.5 border border-slate-700 hover:border-cyberCyan text-white text-xs font-mono uppercase rounded-lg hover:bg-slate-900/40 transition-colors mt-2" id="reset-dimensions">
+                                Reset to Original
+                            </button>
+                        </div>
+
+                        <!-- Right Side: Compression & Format -->
+                        <div class="flex flex-col gap-5">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Quality: <span id="quality-display" class="text-white">90%</span></span>
+                                    <span class="tooltip text-[9px] text-cyberCyan" data-tooltip="Higher quality = larger file size">ℹ️</span>
+                                </label>
+                                <input type="range" id="quality-slider" min="10" max="100" value="90" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyberCyan">
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center">
+                                    Target File Size (KB) <span class="tooltip text-[9px] text-cyberCyan ml-1" data-tooltip="Automatically adjusts quality to target size">ℹ️</span>
+                                </label>
+                                <input type="number" id="target-filesize" min="1" placeholder="Optional" class="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyberCyan font-mono">
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center">
+                                    Output Format <span class="tooltip text-[9px] text-cyberCyan ml-1" data-tooltip="Choose output image format">ℹ️</span>
+                                </label>
+                                <select id="output-format" class="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyberCyan">
+                                    <option value="jpeg">JPEG (smaller size)</option>
+                                    <option value="png">PNG (transparency)</option>
+                                    <option value="webp">WebP (best compression)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing state indicator -->
+                    <div class="hidden flex-col items-center justify-center gap-2 p-4 text-center" id="loading">
+                        <i class="fa-solid fa-arrows-spin loading text-2xl text-cyberCyan"></i>
+                        <p class="text-xs text-slate-400 font-mono">Optimizing image matrices...</p>
+                    </div>
+
+                    <!-- Action Trigger row -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center border-t border-white/5 pt-6 mt-4">
+                        <button class="magnetic bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs px-8 py-3 rounded-xl hover:scale-[1.02]" id="process-btn">
+                            🔄 Process Image
+                        </button>
+                        <button class="magnetic bg-gradient-to-r from-emerald-400 to-teal-500 text-voidBlack font-bold text-xs px-8 py-3 rounded-xl hover:scale-[1.02] shadow-[0_0_15px_rgba(16,185,129,0.15)]" id="download-btn" style="display: none;">
+                            💾 Download Optimized Image
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+            <div class="flex flex-col gap-2">
+                <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+                <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+            </div>
+            <div class="flex flex-col items-center md:items-end gap-3">
+                <div class="flex gap-6 text-sm font-mono">
+                    <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+                    <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+                    <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+                </div>
+                <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        class ImageResizer {
+            constructor() {
+                this.originalImage = null;
+                this.originalFile = null;
+                this.canvas = document.createElement('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.processedImageData = null;
+                
+                this.initializeElements();
+                this.bindEvents();
+            }
+
+            initializeElements() {
+                this.uploadArea = document.getElementById('upload-area');
+                this.fileInput = document.getElementById('file-input');
+                this.imagePreview = document.getElementById('image-preview');
+                this.controlsSection = document.getElementById('controls-section');
+                this.originalPreview = document.getElementById('original-preview');
+                this.optimizedPreview = document.getElementById('optimized-preview');
+                this.loading = document.getElementById('loading');
+                
+                // Info elements
+                this.originalDimensions = document.getElementById('original-dimensions');
+                this.originalSize = document.getElementById('original-size');
+                this.originalFormat = document.getElementById('original-format');
+                this.newDimensions = document.getElementById('new-dimensions');
+                this.newSize = document.getElementById('new-size');
+                this.currentQuality = document.getElementById('current-quality');
+                this.sizeReduction = document.getElementById('size-reduction');
+                
+                // Control elements
+                this.targetWidth = document.getElementById('target-width');
+                this.targetHeight = document.getElementById('target-height');
+                this.maintainAspect = document.getElementById('maintain-aspect');
+                this.qualitySlider = document.getElementById('quality-slider');
+                this.qualityDisplay = document.getElementById('quality-display');
+                this.targetFilesize = document.getElementById('target-filesize');
+                this.outputFormat = document.getElementById('output-format');
+                
+                // Button elements
+                this.resetBtn = document.getElementById('reset-dimensions');
+                this.processBtn = document.getElementById('process-btn');
+                this.downloadBtn = document.getElementById('download-btn');
+            }
+
+            bindEvents() {
+                // Upload events
+                this.uploadArea.addEventListener('click', () => this.fileInput.click());
+                this.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
+                this.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
+                this.fileInput.addEventListener('change', this.handleFileSelect.bind(this));
+                
+                // Control events
+                this.targetWidth.addEventListener('input', this.handleDimensionChange.bind(this, 'width'));
+                this.targetHeight.addEventListener('input', this.handleDimensionChange.bind(this, 'height'));
+                this.qualitySlider.addEventListener('input', this.handleQualityChange.bind(this));
+                this.targetFilesize.addEventListener('input', this.handleTargetFilesizeChange.bind(this));
+                this.resetBtn.addEventListener('click', this.resetDimensions.bind(this));
+                this.processBtn.addEventListener('click', this.processImage.bind(this));
+                this.downloadBtn.addEventListener('click', this.downloadImage.bind(this));
+                this.outputFormat.addEventListener('change', this.updatePreview.bind(this));
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                this.uploadArea.classList.add('dragover');
+            }
+
+            handleDragLeave(e) {
+                e.preventDefault();
+                this.uploadArea.classList.remove('dragover');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    this.loadImage(files[0]);
+                }
+            }
+
+            handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.loadImage(file);
+                }
+            }
+
+            async loadImage(file) {
+                this.originalFile = file;
+                
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            this.originalImage = img;
+                            this.displayOriginalImage();
+                            this.initializeControls();
+                            this.showControls();
+                            resolve();
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            displayOriginalImage() {
+                this.originalPreview.src = this.originalImage.src;
+                this.originalDimensions.textContent = `${this.originalImage.width} × ${this.originalImage.height}`;
+                this.originalSize.textContent = this.formatFileSize(this.originalFile.size);
+                this.originalFormat.textContent = this.originalFile.type.split('/')[1].toUpperCase();
+                this.imagePreview.style.display = 'block';
+            }
+
+            initializeControls() {
+                this.targetWidth.value = this.originalImage.width;
+                this.targetHeight.value = this.originalImage.height;
+                this.updatePreview();
+            }
+
+            showControls() {
+                this.controlsSection.style.display = 'block';
+            }
+
+            handleDimensionChange(changedDimension) {
+                if (this.maintainAspect.checked && this.originalImage) {
+                    const aspectRatio = this.originalImage.width / this.originalImage.height;
+                    
+                    if (changedDimension === 'width') {
+                        const newWidth = parseInt(this.targetWidth.value) || 0;
+                        this.targetHeight.value = Math.round(newWidth / aspectRatio);
+                    } else {
+                        const newHeight = parseInt(this.targetHeight.value) || 0;
+                        this.targetWidth.value = Math.round(newHeight * aspectRatio);
+                    }
+                }
+                this.updatePreview();
+            }
+
+            handleQualityChange() {
+                const quality = this.qualitySlider.value;
+                this.qualityDisplay.textContent = `${quality}%`;
+                this.currentQuality.textContent = `${quality}%`;
+                this.updatePreview();
+            }
+
+            handleTargetFilesizeChange() {
+                if (this.targetFilesize.value) {
+                    this.optimizeForFileSize();
+                } else {
+                    this.updatePreview();
+                }
+            }
+
+            resetDimensions() {
+                if (this.originalImage) {
+                    this.targetWidth.value = this.originalImage.width;
+                    this.targetHeight.value = this.originalImage.height;
+                    this.updatePreview();
+                }
+            }
+
+            async updatePreview() {
+                if (!this.originalImage) return;
+
+                const width = parseInt(this.targetWidth.value) || this.originalImage.width;
+                const height = parseInt(this.targetHeight.value) || this.originalImage.height;
+                const quality = this.qualitySlider.value / 100;
+
+                // Update canvas
+                this.canvas.width = width;
+                this.canvas.height = height;
+                this.ctx.drawImage(this.originalImage, 0, 0, width, height);
+
+                // Get image data
+                const format = this.getOutputMimeType();
+                const dataUrl = this.canvas.toDataURL(format, quality);
+                
+                // Update preview
+                this.optimizedPreview.src = dataUrl;
+                this.newDimensions.textContent = `${width} × ${height}`;
+                
+                // Calculate file size
+                const sizeInBytes = this.calculateDataUrlSize(dataUrl);
+                this.newSize.textContent = this.formatFileSize(sizeInBytes);
+                
+                // Calculate size reduction
+                const reduction = ((this.originalFile.size - sizeInBytes) / this.originalFile.size * 100);
+                this.updateSizeReduction(reduction);
+                
+                this.processedImageData = dataUrl;
+            }
+
+            async optimizeForFileSize() {
+                const targetSize = parseInt(this.targetFilesize.value) * 1024; // Convert KB to bytes
+                if (!targetSize || !this.originalImage) return;
+
+                let quality = 0.9;
+                let minQuality = 0.1;
+                let maxQuality = 1.0;
+                let iterations = 0;
+                const maxIterations = 10;
+
+                while (iterations < maxIterations) {
+                    const width = parseInt(this.targetWidth.value) || this.originalImage.width;
+                    const height = parseInt(this.targetHeight.value) || this.originalImage.height;
+
+                    this.canvas.width = width;
+                    this.canvas.height = height;
+                    this.ctx.drawImage(this.originalImage, 0, 0, width, height);
+
+                    const format = this.getOutputMimeType();
+                    const dataUrl = this.canvas.toDataURL(format, quality);
+                    const currentSize = this.calculateDataUrlSize(dataUrl);
+
+                    if (Math.abs(currentSize - targetSize) < targetSize * 0.05) {
+                        // Within 5% of target
+                        break;
+                    }
+
+                    if (currentSize > targetSize) {
+                        maxQuality = quality;
+                        quality = (minQuality + quality) / 2;
+                    } else {
+                        minQuality = quality;
+                        quality = (quality + maxQuality) / 2;
+                    }
+
+                    iterations++;
+                }
+
+                // Update quality slider
+                this.qualitySlider.value = Math.round(quality * 100);
+                this.handleQualityChange();
+            }
+
+            async processImage() {
+                if (!this.originalImage) return;
+
+                this.showLoading(true);
+                
+                // Small delay to show loading animation
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await this.updatePreview();
+                
+                this.showLoading(false);
+                this.downloadBtn.style.display = 'inline-block';
+            }
+
+            downloadImage() {
+                if (!this.processedImageData) return;
+
+                const link = document.createElement('a');
+                const format = this.outputFormat.value;
+                const filename = `resized_image.${format === 'jpeg' ? 'jpg' : format}`;
+                
+                link.href = this.processedImageData;
+                link.download = filename;
+                link.click();
+            }
+
+            showLoading(show) {
+                this.loading.style.display = show ? 'block' : 'none';
+                this.processBtn.disabled = show;
+            }
+
+            getOutputMimeType() {
+                const format = this.outputFormat.value;
+                switch (format) {
+                    case 'jpeg': return 'image/jpeg';
+                    case 'png': return 'image/png';
+                    case 'webp': return 'image/webp';
+                    default: return 'image/jpeg';
+                }
+            }
+
+            calculateDataUrlSize(dataUrl) {
+                // Remove data URL prefix and calculate base64 size
+                const base64Data = dataUrl.split(',')[1];
+                return Math.round(base64Data.length * 0.75);
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            updateSizeReduction(reduction) {
+                const element = this.sizeReduction;
+                const isPositive = reduction > 0;
+                
+                element.className = `size-reduction ${isPositive ? 'positive' : 'negative'}`;
+                element.innerHTML = `<strong>Size ${isPositive ? 'reduced' : 'increased'} by ${Math.abs(reduction).toFixed(1)}%</strong>`;
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new ImageResizer();
+        });
+    </script>
+</body>
+</html>

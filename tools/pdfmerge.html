@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Merger | Priyanshu Garg Tools</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              voidBlack: '#03050B',
+              cardDark: '#070A13',
+              cyberCyan: '#00F0FF',
+              electricBlue: '#0066FF',
+              hyperPurple: '#7C3AED',
+            },
+            fontFamily: {
+              outfit: ['Outfit', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Sortable JS for drag-and-drop reordering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        .drop-zone {
+            transition: all 0.3s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #00F0FF;
+            background-color: rgba(0, 240, 255, 0.08);
+            transform: scale(1.01);
+        }
+        .animate-spin-slow {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-voidBlack text-slate-100 min-h-screen relative overflow-x-hidden font-inter transition-colors duration-300" id="body">
+
+    <!-- Grid overlay background for tech aesthetic -->
+    <div class="cyber-grid"></div>
+
+    <!-- Radial Glow Background -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyberCyan/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-hyperPurple/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- MAIN SCROLL CONTAINER -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-24 py-12 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6 mb-12">
+            <a href="./index.html" class="group flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 hover:text-cyberCyan transition-colors">
+                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Tools
+            </a>
+            <span class="bg-slate-950/60 border border-white/5 rounded-full px-3 py-1 text-[10px] font-mono tracking-wider uppercase text-slate-400 flex items-center gap-2">
+                <span class="status-pulse"></span> PRIYANSHU GARG // PDF MERGER
+            </span>
+            
+            <!-- Hidden Dark Mode Toggle to keep standard event target intact -->
+            <button id="darkModeToggle" class="hidden"></button>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="flex-grow flex flex-col gap-10">
+            <!-- TITLE & LEAD -->
+            <div class="text-left border-b border-white/5 pb-6">
+                <span class="text-xs font-mono text-hyperPurple uppercase tracking-[0.3em] block mb-2">FILE ASSEMBLY DOCK</span>
+                <h1 class="text-3xl md:text-5xl font-outfit font-extrabold text-white tracking-tighter leading-none mb-4">
+                    PDF <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan to-hyperPurple">MERGER</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                    Combine multiple PDF documents client-side securely. Drag files to specify merge hierarchy.
+                </p>
+            </div>
+
+            <!-- Workspace main panel -->
+            <div class="glass-panel p-6 md:p-8 rounded-2xl border border-white/5 bg-slate-950/20 flex flex-col gap-6">
+                
+                <!-- Upload Area -->
+                <div>
+                    <label class="block text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold mb-3">1. UPLOAD PDF DOCUMENTS</label>
+                    <div id="dropZone" class="drop-zone border border-dashed border-white/10 rounded-xl p-8 text-center cursor-pointer bg-slate-950/40 hover:border-cyberCyan/35 transition-colors">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 text-xl">
+                                <i class="fa-solid fa-file-circle-plus"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-300 font-medium">Drop multiple PDF files here or click to browse</p>
+                                <p class="text-[10px] text-slate-500 mt-1">Supports bulk PDF document uploads</p>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" multiple accept=".pdf" class="hidden">
+                </div>
+
+                <!-- File List -->
+                <div id="fileListContainer" class="hidden glass-panel p-6 rounded-xl border border-white/5 bg-slate-950/40 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-2.5">
+                        <span class="text-[10px] font-mono tracking-widest uppercase text-cyberCyan font-bold">Selected Files</span>
+                        <button id="clearAllBtn" class="text-red-400 hover:text-red-500 text-[10px] font-mono uppercase">Clear All</button>
+                    </div>
+                    
+                    <div class="text-[10px] text-slate-500 font-mono flex items-center gap-1.5">
+                        <i class="fa-solid fa-up-down-left-right text-cyberCyan"></i> Drag individual files to adjust final page hierarchy
+                    </div>
+                    
+                    <ul id="fileList" class="flex flex-col gap-3">
+                        <!-- Files will be dynamically added here -->
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 items-center justify-center border-t border-white/5 pt-6">
+                    <button id="mergeBtn" disabled class="w-full sm:w-auto py-3.5 px-8 bg-gradient-to-r from-cyberCyan to-electricBlue text-voidBlack font-bold text-xs rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_0_15px_rgba(0,240,255,0.15)] flex items-center justify-center gap-2">
+                        <span id="mergeText">Merge PDFs</span>
+                        <svg id="mergeSpinner" class="animate-spin-slow w-4 h-4 ml-1 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                    
+                    <button id="downloadBtn" class="w-full sm:w-auto py-3.5 px-8 bg-gradient-to-r from-emerald-400 to-teal-500 text-voidBlack font-bold text-xs rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center justify-center gap-2 hidden">
+                        <i class="fa-solid fa-download"></i> Download Merged PDF
+                    </button>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="statusContainer" class="text-center font-mono">
+                    <!-- Status messages will appear here -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer id="footer" class="w-full border-t border-slate-900/60 py-12 px-0 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left mt-16 relative z-10">
+          <div class="flex flex-col gap-2">
+            <span class="font-outfit font-extrabold tracking-widest text-lg text-white">PRIYANSHU GARG</span>
+            <span class="text-xs text-slate-500 font-mono">SENIOR SOFTWARE DEVELOPER & AUTOMATION ARCHITECT</span>
+          </div>
+          <div class="flex flex-col items-center md:items-end gap-3">
+            <div class="flex gap-6 text-sm font-mono">
+              <a href="https://github.com/Mr-Priyanshu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-github mr-2"></i>GitHub</a>
+              <a href="https://linkedin.com/in/priyanshu-garg-software-engineer" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+              <a href="mailto:impriyanshu.garg@gmail.com" class="text-slate-400 hover:text-cyberCyan transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+            </div>
+            <span class="text-[10px] text-slate-600">&copy; 2026 Priyanshu Garg. All Rights Reserved.</span>
+          </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Application state
+        let selectedFiles = [];
+        let mergedPdfBytes = null;
+
+        // DOM elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const fileList = document.getElementById('fileList');
+        const mergeBtn = document.getElementById('mergeBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const statusContainer = document.getElementById('statusContainer');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        // Initialize dark mode from memory variable instead of localStorage
+        let isDarkMode = false;
+
+        // Dark mode toggle
+        darkModeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            toggleDarkMode();
+        });
+
+        function toggleDarkMode() {
+            const body = document.getElementById('body');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark-mode');
+                body.className = body.className.replace('from-blue-50 to-indigo-100', 'from-gray-900 to-gray-800');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                body.className = body.className.replace('from-gray-900 to-gray-800', 'from-blue-50 to-indigo-100');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+
+        // File upload handlers
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+        clearAllBtn.addEventListener('click', clearAllFiles);
+        mergeBtn.addEventListener('click', mergePDFs);
+        downloadBtn.addEventListener('click', downloadMergedPDF);
+
+        // Drag and drop handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-400', 'dark:border-blue-500');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-400', 'dark:border-blue-500');
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+            addFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            addFiles(files);
+        }
+
+        // Add files to the list
+        async function addFiles(files) {
+            for (const file of files) {
+                if (file.type === 'application/pdf') {
+                    const fileObj = {
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        pages: await getPageCount(file)
+                    };
+                    selectedFiles.push(fileObj);
+                }
+            }
+            updateFileList();
+            updateUI();
+        }
+
+        // Get page count from PDF
+        async function getPageCount(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                return pdfDoc.getPageCount();
+            } catch (error) {
+                console.error('Error reading PDF:', error);
+                return '?';
+            }
+        }
+
+        // Update file list display
+        function updateFileList() {
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach((fileObj, index) => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between p-4 bg-slate-950/40 rounded-xl border border-white/5 cursor-move hover:border-cyberCyan/30 transition-colors';
+                li.dataset.id = fileObj.id;
+                
+                li.innerHTML = `
+                    <div class="flex items-center space-x-3 w-full justify-between">
+                        <div class="flex items-center space-x-3 min-w-0 flex-1">
+                            <div class="flex-shrink-0 text-red-400 text-lg">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-mono font-bold text-white truncate">${fileObj.name}</p>
+                                <p class="text-[10px] text-slate-500 font-mono mt-0.5">${fileObj.size} • ${fileObj.pages} pages</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-[9px] font-mono bg-cyberCyan/10 border border-cyberCyan/20 text-cyberCyan px-2 py-0.5 rounded-full">#${index + 1}</span>
+                            <button class="remove-file text-red-400 hover:text-red-500 p-1 transition-colors" data-id="${fileObj.id}">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add remove handler
+                li.querySelector('.remove-file').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeFile(fileObj.id);
+                });
+                
+                fileList.appendChild(li);
+            });
+
+            // Initialize sortable
+            if (selectedFiles.length > 1) {
+                new Sortable(fileList, {
+                    animation: 150,
+                    onEnd: function(evt) {
+                        // Reorder selectedFiles array
+                        const item = selectedFiles.splice(evt.oldIndex, 1)[0];
+                        selectedFiles.splice(evt.newIndex, 0, item);
+                        updateFileList(); // Refresh to update numbering
+                    }
+                });
+            }
+        }
+
+        // Remove file from list
+        function removeFile(id) {
+            selectedFiles = selectedFiles.filter(f => f.id !== id);
+            updateFileList();
+            updateUI();
+        }
+
+        // Clear all files
+        function clearAllFiles() {
+            selectedFiles = [];
+            updateFileList();
+            updateUI();
+        }
+
+        // Update UI state
+        function updateUI() {
+            const hasFiles = selectedFiles.length > 0;
+            
+            if (hasFiles) {
+                fileListContainer.classList.remove('hidden');
+            } else {
+                fileListContainer.classList.add('hidden');
+                downloadBtn.classList.add('hidden');
+                mergedPdfBytes = null;
+            }
+            
+            mergeBtn.disabled = !hasFiles;
+        }
+
+        // Merge PDFs
+        async function mergePDFs() {
+            if (selectedFiles.length === 0) return;
+
+            // Show loading state
+            const mergeText = document.getElementById('mergeText');
+            const mergeSpinner = document.getElementById('mergeSpinner');
+            
+            mergeText.textContent = 'Merging...';
+            mergeSpinner.classList.remove('hidden');
+            mergeBtn.disabled = true;
+
+            try {
+                showStatus('Processing PDFs...', 'info');
+                
+                // Create new PDF document
+                const mergedPdf = await PDFLib.PDFDocument.create();
+                
+                // Process each file
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const fileObj = selectedFiles[i];
+                    showStatus(`Processing ${fileObj.name} (${i + 1}/${selectedFiles.length})...`, 'info');
+                    
+                    const arrayBuffer = await fileObj.file.arrayBuffer();
+                    const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                    
+                    copiedPages.forEach((page) => {
+                        mergedPdf.addPage(page);
+                    });
+                }
+                
+                // Save merged PDF
+                mergedPdfBytes = await mergedPdf.save();
+                
+                showStatus(`Successfully merged ${selectedFiles.length} PDFs!`, 'success');
+                downloadBtn.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error merging PDFs:', error);
+                showStatus('Error merging PDFs. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                mergeText.textContent = 'Merge PDFs';
+                mergeSpinner.classList.add('hidden');
+                mergeBtn.disabled = selectedFiles.length === 0;
+            }
+        }
+
+        // Download merged PDF
+        function downloadMergedPDF() {
+            if (!mergedPdfBytes) return;
+
+            const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `merged-pdf-${new Date().toISOString().split('T')[0]}.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showStatus('PDF downloaded successfully!', 'success');
+        }
+
+        // Show status messages
+        function showStatus(message, type) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `inline-flex items-center px-4 py-2 rounded-xl border font-medium ${
+                type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
+                'bg-cyberCyan/10 border-cyberCyan/20 text-cyberCyan'
+            }`;
+            
+            const icon = type === 'success' ? 
+                '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' :
+                type === 'error' ?
+                '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>' :
+                '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+            
+            statusDiv.innerHTML = icon + message;
+            
+            statusContainer.innerHTML = '';
+            statusContainer.appendChild(statusDiv);
+            
+            // Auto-hide success/error messages
+            if (type !== 'info') {
+                setTimeout(() => {
+                    statusDiv.style.opacity = '0';
+                    statusDiv.style.transform = 'translateY(-10px)';
+                    setTimeout(() => statusDiv.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Prevent default drag behaviors on document
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    </script>
+</body>
+</html>
